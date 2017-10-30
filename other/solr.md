@@ -89,8 +89,52 @@ if( !$solr->ping() ) {
 
 　　{}  不包含范围检索，如检索某时间段记录，不包含头尾date:{201507 TO 201510}
 　　
+　　不能添加对关键词添加""
 　　
 　　id:lft1T3NO1a1 OR  id:lV5iIulcuf7
 　　http://www.cnblogs.com/zhangweizhong/p/5056884.html
 ```
+
+### fq 过滤
+
+```
+（filter query）过虑查询，提供一个可选的筛选器查询。返回在q查询符合结果中同时符合的fq条件的查询结果，例如：q=id:1&fq=sort:[1 TO 5]，找关键字id为1 的，并且sort是1到5之间的。
+
+字符串类型要添加""
+hType:"综合医院"
+```
+
+
+
+
+
+![fq](/Users/lihao/Desktop/md/images/fq.png)
+
+
+
+
+
+
+
+```
+$query = new Query();
+$data = new QueryData();
+$data->coreName = 'hospital';
+//$data->q = "hName:昆山中医";
+$data->fq=['hType:"综合医院"','hLevel:"三级甲等"','hProvince: "江苏"'];
+$data = $query ->query($data);
+```
+
+
+
+### sort
+
+```
+　　sort  排序方式，例如id  desc 表示按照 “id” 降序
+　　Order desc, Doctors asc
+```
+
+
+
+
 
