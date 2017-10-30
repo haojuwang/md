@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+</body>
+</html>
+<script type="text/javascript">
+	var data = {"list": [{"addTime": 1471578589000,"content": "您在【唐盛庄园消费】0.01元","id": "ts195","monthDay": "20160819", "type": 2
+        },{"addTime": 1471578589000,"content": "李浩您在【唐盛庄园消费】0.01元","id": "ts195","monthDay": "20160820", "type": 2
+        },{"addTime": 1471578589000,"content": "李浩您在【唐盛庄园消费】0.01元","id": "ts195","monthDay": "20160815", "type": 2
+        },{"addTime": 1481695620000,"content": "工资100元","id": "sx27","monthDay": "20161214","type": 3}]};
+
+    var result={};   
+
+      for(var i=0;i<data.list.length;i++) {
+      	var day =	data.list[i]["monthDay"].substr(data.list[i]["monthDay"].length-2);
+
+      	var has = true;
+      	//判断reuslt 里面否有 day 天的数据
+      	for(key in result) {
+      		if(key == day) {
+      			has = false;
+      		}
+      	}
+      	if(has) {
+      		//没有day 天的数据新建一个数据push进去
+      		result[day] = [];
+      		 result[day].push(data.list[i]);
+      	} else {
+      		result[day].push(data.list[i]);
+      	}
+
+      }
+
+      console.log(result);
+      //查看result数据
+      console.log(JSON.stringify(result));
+</script>
+

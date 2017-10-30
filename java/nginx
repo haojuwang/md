@@ -1,0 +1,200 @@
+<a href="http://www.jianshu.com/p/c963b214d930" target="_blank">nginx安装</a>
+
+## Nginx 是什么
+> Nginx 是一款轻量级的web服务器，也是一款轻量级的反向服务器。
+
+## Nginx主要作用
+* 作为反向代理服务器。
+* 作为邮件代理服务器。
+* 实现前端动静分离。
+
+## Nginx 特点
+> 高稳定, 高性能,资源占用少，功能丰富，模块化结构，支持热部署。
+
+## Nginx 配置文件
+* /conf/nginx.conf: 应用程序的基本配置文件。
+* /mime.types: MIME类型关联的扩展文件。
+* fastcgi.conf： 与fastcgi 相关的配置。
+* proxy.conf: 与proxy 相关的配置。
+* sites.conf: 配置Nginx提供的网站，包括虚拟主机
+·
+## Nginx 的进程结构
+ 启动Nginx 的时候，会启动一个Master进程，这个进程不处理任何客户端请求，主要用来产生
+ worker进程，一个worker 进程用来处理一个request。
+ ![](img/nginx1.png) 
+
+##  Nginx 文档
+<a href="https://nginx.org/en/docs/" target="_blank">英文文档</a>
+<a href="http://www.nginx.cn/doc/" target="_blank">中文文档</a>
+
+#### 指令格式
+>Syntax:	client_body_timeout time;
+Default:	client_body_timeout 60s;
+Context:	http, server, location
+
+* 第一行语法格式。
+* 第二行默认值。
+* 第三行 指令可以放在的位置。
+
+## Nginx模块分为
+> 核心模块，事件模块，标准http模块，可选http模块，邮件模块，第三方模块和补丁。
+* 核心模块：基本功能和指令，如进程管理和安全。
+* 事件模块：在Nginx内配置网络使用能力。
+* 配置模块：提供包含机制。
+
+## nginx.conf 文档结
+![](img/nginx2.png) 
+
+
+### 核心模块
+<a href="https://nginx.org/en/docs/ngx_core_module.html" target="_blank">指令文档</a>
+####1，error_log 
+	日志 级别debug, info, notice, warn, error, crit, alert, or emerg.
+	可以设置的位置main, http, mail, stream, server, location
+	error_log logs/error.log error;
+
+####2， include 
+	引入文件
+	可以在任意存放位置
+	include mime.types;
+
+####3， pid
+  nginx的pid 存放位置
+  只能在main 位置配置
+  pid nginx.pid;
+
+####4， user 
+	所在用户组
+
+####5， worker_processes
+	定义进程数
+	Syntax:	worker_processes number | auto;
+	Default:	
+	worker_processes 1;
+	Context:	main
+
+
+## Location 区段配置
+#### Location 基本语法
+> location [=|~*|^~|@]  pattern{....}
+
+#####1,没有修饰符 表示：必须以指定模式开始
+	server{
+		server_name xxx.com
+		location /abc{
+			....
+		}
+		.....
+	}
+
+	以下url 都可以匹配
+	http://xxx.com/abc
+	http://xxx.com/abc?p1=1&p2=11
+	http://xxx.com/abc/
+	http://xxx.com/abcefg
+
+#####2, = 表示：必须与指定的模式精确匹配
+	server{
+		server_name xxx.com
+		location = /abc{
+			....
+		}
+		.....
+	}
+
+	以下url 都可以匹配
+	http://xxx.com/abc
+	http://xxx.com/abc?p1=1&p2=11
+
+	以下url 不能匹配
+	http://xxx.com/abc/
+	http://xxx.com/abcefg
+
+#####3, ~ 表示： 指定的正则表达式要区分大小写
+	server{
+		server_name xxx.com
+		location ~ ^/abc${
+			....
+		}
+		.....
+	}
+
+	以下url 都可以匹配
+	http://xxx.com/abc
+	http://xxx.com/abc?p1=1&p2=11
+
+	以下url 不能匹配
+	http://xxx.com/abc/
+	http://xxx.com/abcefg
+	http://xxx.com/ABC
+
+#####4, ~* 表示：指定正则表达式不区分大小写
+	server{
+		server_name xxx.com
+		location ~* ^/abc${
+			....
+		}
+		.....
+	}
+
+	以下url 都可以匹配
+	http://xxx.com/abc
+	http://xxx.com/abc?p1=1&p2=11
+	http://xxx.com/ABC
+
+	以下url 不能匹配
+	http://xxx.com/abc/
+	http://xxx.com/abcefg
+	
+
+#####5, ^~ 类似于无修饰符的行为，也是以指定模式开始，不同的是，如果模式匹配，那么
+就停止搜索其它模式了。
+
+#####6, @ 定义命名location区段，这些区段用户不能访问，只可以由内部产生的请求来访问
+如error_page
+
+##### 查找顺序和优先级
+* 带有“=” 的精确匹配优先。
+* 没有修饰符的精确匹配。
+* 正则表达式按照他们在配置文件中定义顺序。
+* 带有“^~” 修饰符的，开头匹配。
+* 带有“~” 或“~*” 修饰符的，如果正则表达式与uri匹配。
+* 没有修饰符的，如果指定字符串与uri开头匹配
+
+## 负载均衡 反向代理
+	在http 模块设置
+	 upstream ceshi {
+        server  127.0.0.1:8484  weight=5; 
+        server  127.0.0.1:8888  weight=5;
+    }
+    location /root {
+    	#http:// + “upstream”
+        proxy_pass http://ceshi/;
+    }
+
+## 动静分离
+	location ~ .*\.(js|css|ico|png|jpg|eot|svg|ttf|woff)$ {
+        #所有静态文件直接读取硬盘
+        root  /Users/lihao/Desktop/work/tomcat/tomcat/webapps/ROOT/;
+        expires 30d; #缓存30天
+    }
+
+    若是访问不到 用chmod 修改文件夹权限。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
