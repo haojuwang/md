@@ -40,6 +40,7 @@
 
 2，在基于传统同步阻塞模型开发中，ServerSocket 负责绑定IP地址，启动监听端口，Socket负责发起连接操作。连接成功之后，双方通过输入输出流进行同步阻塞通信。
 
+<<<<<<< HEAD
 
 
 
@@ -120,10 +121,62 @@ Selector 会不断地轮询注册在其上的Channel,如果某个Channel上面�
 
 ```java
 ServerSocketChannel acceptorSvr = ServerSocketChannel.open();
+=======
+采用BIO通信模型的服务端，通常由一个独立的Acceptor线程负责监听客户端的链接，他接收到客户端链接请求之后为每个客户端创建一个新的线程进行链路处理，处理完成之后，通过输出流返回应答给客户端，线程销毁，这就是典型的一请求一应答的通信模型。
+
+
+
+![BIO执行流程](../images/BIO执行流程.png)
+
+
+
+​	该模型最大的问题就是缺乏弹性伸缩能力，当客户端并发访问量增加后，服务端的线程个数和客户端并发访问数呈1：1的正比关系，由于线程是Java虚拟机非常宝贵的线程资源，当线程数膨胀之后，系统的性能将急剧下降，随着并发量的继续增大，系统会发生线程堆栈溢出，创建新线程失败等问题，并最终导致进程宕机或者僵死，不能对外提供服务。
+
+
+
+server
+
+```java
+public class TimeServer {
+    public static void main(String[] args) {
+
+        int port = 8899;
+
+        ServerSocket server = null;
+
+        try {
+            server = new ServerSocket(port);
+            System.out.println("this time server is start in port: " + port);
+            Socket socket = null;
+            int i =0;
+            while (true) {
+                socket = server.accept();
+                i++;
+                Thread thread =  new Thread(new TimeServerHandler(socket));
+                thread.setName(i+" ");
+                thread.start();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (server != null) {
+                System.out.println("The time server close");
+                try {
+                    server.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                server = null;
+            }
+        }
+    }
+}
+>>>>>>> 2df7bbf337cae480b23d0493b55c9edaf01b0d4c
 ```
 
 
 
+<<<<<<< HEAD
 * 步骤二：绑定监听端口，设置连接为非阻塞模式
 
 ```java
@@ -239,6 +292,147 @@ acceptorSvr.configureBlocking(false) ;
 
 
 注意：如果发送区TCP 缓冲区满，会导致写半包，此时，需要注册监听写操作位，循环写，直到整包消息写入TCP缓冲区。
+=======
+handler
+
+```java
+public class TimeServerHandler implements Runnable {
+
+    private Socket socket;
+
+    public TimeServerHandler(Socket socket) {
+        this.socket = socket;
+    }
+
+    @Override
+    public void run() {
+        BufferedReader in = null;
+        PrintWriter out = null;
+
+        try {
+
+            in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+            out = new PrintWriter(this.socket.getOutputStream(), true);
+            String currentTime = null;
+            String body = null;
+            while (true) {
+                body = in.readLine();
+
+                if (body == null) {
+                    System.out.println("body === null");
+
+                    break;
+
+
+                }
+                //耗时
+                for(int i=0;i<100000;i++) {
+
+                }
+                System.out.println("The time server receive order: "+Thread.currentThread().getName() + body);
+                currentTime = "query time order".equalsIgnoreCase(body) ? new Date(System.currentTimeMillis()).toString() : "BAD ORDER";
+
+                out.println(currentTime);
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+
+            if (out != null) {
+                out.close();
+                out = null;
+            }
+
+            if (this.socket != null) {
+                try {
+                    this.socket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
+                this.socket = null;
+            }
+        }
+
+
+    }
+}
+```
+
+
+
+client
+
+```java
+public class TimeClient {
+    public static void main(String[] args) {
+        int port = 8899;
+        Socket socket = null;
+        BufferedReader in = null;
+        PrintWriter out = null;
+        try {
+
+            for (int i = 0; i < 10000; i++) {
+                socket = new Socket("127.0.0.1", port);
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                out = new PrintWriter(socket.getOutputStream(), true);
+                out.println("query time order");
+//                out.println();
+
+
+                System.out.println("send order 2 server succeed.");
+                String resp = in.readLine();
+                System.out.println("Now is: " + i + "   " + resp);
+
+
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                out.close();
+                out = null;
+            }
+
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                socket = null;
+            }
+        }
+    }
+}
+```
+
+
+
+
+
+
+
+>>>>>>> 2df7bbf337cae480b23d0493b55c9edaf01b0d4c
 
 
 
@@ -252,8 +446,12 @@ acceptorSvr.configureBlocking(false) ;
 
 
 
+<<<<<<< HEAD
 ## NIO 编程的优点
 
 * 客户端发起的连接操作是异步的，可以通过在多路复用器注册OP_CONNECT等待后续结果，不需要像之前的客户端那样被同步阻塞。
 * SocketChannel的后续读写操作都是异步，如果没有课读写的数据他不会同步等待，直接返回，这样IO通信线程就可以处理其他的链路，不需要同步等待这个链路可用。
 * 线程模型的优化：由于Jdk的Selector在linux等主流操作系统上通过epoll实现，他没有连接句柄数的限制，这意味着一个Selector线程可以同时处理成千上万个客户端连接，而且性能不会随着客户端的增加而线性下降。因此，他非常适合做高性能，高负载的网络服务器。
+=======
+
+>>>>>>> 2df7bbf337cae480b23d0493b55c9edaf01b0d4c
