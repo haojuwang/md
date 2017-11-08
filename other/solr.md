@@ -138,3 +138,31 @@ $data = $query ->query($data);
 
 
 
+## 新版本中文分词
+
+
+
+**1、**进入解压好的solr文件夹根目录下执行以下命令
+
+https://github.com/fnpac/IKAnalyzer2017_6_6_0
+
+```
+https://github.com/fnpac/IKAnalyzer2017_6_6_0
+```
+
+2 ,schema
+
+```
+<!-- IKAnalyzer -->
+<fieldType name="IK_cnAnalyzer" class="solr.TextField" positionIncrementGap="100">
+    <analyzer type="index">
+        <tokenizer class="org.wltea.analyzer.lucene.IKTokenizerFactory" useSmart="false"/>
+        <filter class="org.wltea.analyzer.lucene.IKTokenFilterFactory" useSingle="true" useItself="false" />
+    </analyzer>
+    <analyzer type="query">
+        <tokenizer class="org.wltea.analyzer.lucene.IKTokenizerFactory" useSmart="false"/>
+        <filter class="org.wltea.analyzer.lucene.IKTokenFilterFactory" useSingle="true" useItself="false" />
+    </analyzer>
+</fieldType>
+```
+
