@@ -10,6 +10,7 @@
 * 社区活跃，迭代周期短，发现的BUG可以被及时修复，同时，更多的新功能会加入。
 * 经历了大规模的商业应用考验,质量得到验证。
 
+<<<<<<< HEAD
 
 
 #### netty 实例代码
@@ -1303,3 +1304,5 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<TextWebS
 
 
 
+=======
+>>>>>>> ab35103c8eb5cb3b6ae9ea9c69c4044ee01ae0a8

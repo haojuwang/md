@@ -40,9 +40,25 @@
 
 2，在基于传统同步阻塞模型开发中，ServerSocket 负责绑定IP地址，启动监听端口，Socket负责发起连接操作。连接成功之后，双方通过输入输出流进行同步阻塞通信。
 
-<<<<<<< HEAD
 
 
+采用BIO通信模型的服务端，通常由一个独立的Acceptor线程负责监听客户端的链接，他接收到客户端链接请求之后为每个客户端创建一个新的线程进行链路处理，处理完成之后，通过输出流返回应答给客户端，线程销毁，这就是典型的一请求一应答的通信模型。
+
+
+
+![BIO执行流程](../images/BIO执行流程.png)
+
+
+
+​	该模型最大的问题就是缺乏弹性伸缩能力，当客户端并发访问量增加后，服务端的线程个数和客户端并发访问数呈1：1的正比关系，由于线程是Java虚拟机非常宝贵的线程资源，当线程数膨胀之后，系统的性能将急剧下降，随着并发量的继续增大，系统会发生线程堆栈溢出，创建新线程失败等问题，并最终导致进程宕机或者僵死，不能对外提供服务。
+
+
+
+## NIO 编程的优点
+
+- 客户端发起的连接操作是异步的，可以通过在多路复用器注册OP_CONNECT等待后续结果，不需要像之前的客户端那样被同步阻塞。
+- SocketChannel的后续读写操作都是异步，如果没有课读写的数据他不会同步等待，直接返回，这样IO通信线程就可以处理其他的链路，不需要同步等待这个链路可用。
+- 线程模型的优化：由于Jdk的Selector在linux等主流操作系统上通过epoll实现，他没有连接句柄数的限制，这意味着一个Selector线程可以同时处理成千上万个客户端连接，而且性能不会随着客户端的增加而线性下降。因此，他非常适合做高性能，高负载的网络服务器。
 
 
 
@@ -52,13 +68,12 @@
 ##缓冲区Buffer
 
 ```
-Buffer 是一个对象，它包含一些要写入或者要读的数据。在NIO类库中加入Buffer 对象，体现了与新库与IO的一个重要区别。
+Buffer 是一个对象，它包含一些要写入或者要读的数据。在NIO类库中加入Buffer 对象，体现了新库与IO的一个重要区别。
 
 
 在NIO 库中，所有数据都是用缓冲区处理的。写入写出都要经过缓冲区。
 
-缓冲区实质上是一个数组。通常它是一个字节数组(ByteBuffer),也可以使用其它种类的数组，但是一个缓冲区不仅仅是一个数组，缓冲区提供了对对数据结构化访问以及维护读写位置(limit)等信息。
-
+缓冲区实质上是一个数组。通常它是一个字节数组(ByteBuffer),也可以使用其它种类的数组，但是一个缓冲区不仅仅是一个数组，缓冲区提供了对数据结构化访问以及维护读写位置(limit)等信息。
 ```
 
 
@@ -121,62 +136,12 @@ Selector 会不断地轮询注册在其上的Channel,如果某个Channel上面�
 
 ```java
 ServerSocketChannel acceptorSvr = ServerSocketChannel.open();
-=======
-采用BIO通信模型的服务端，通常由一个独立的Acceptor线程负责监听客户端的链接，他接收到客户端链接请求之后为每个客户端创建一个新的线程进行链路处理，处理完成之后，通过输出流返回应答给客户端，线程销毁，这就是典型的一请求一应答的通信模型。
 
-
-
-![BIO执行流程](../images/BIO执行流程.png)
-
-
-
-​	该模型最大的问题就是缺乏弹性伸缩能力，当客户端并发访问量增加后，服务端的线程个数和客户端并发访问数呈1：1的正比关系，由于线程是Java虚拟机非常宝贵的线程资源，当线程数膨胀之后，系统的性能将急剧下降，随着并发量的继续增大，系统会发生线程堆栈溢出，创建新线程失败等问题，并最终导致进程宕机或者僵死，不能对外提供服务。
-
-
-
-server
-
-```java
-public class TimeServer {
-    public static void main(String[] args) {
-
-        int port = 8899;
-
-        ServerSocket server = null;
-
-        try {
-            server = new ServerSocket(port);
-            System.out.println("this time server is start in port: " + port);
-            Socket socket = null;
-            int i =0;
-            while (true) {
-                socket = server.accept();
-                i++;
-                Thread thread =  new Thread(new TimeServerHandler(socket));
-                thread.setName(i+" ");
-                thread.start();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (server != null) {
-                System.out.println("The time server close");
-                try {
-                    server.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                server = null;
-            }
-        }
-    }
-}
->>>>>>> 2df7bbf337cae480b23d0493b55c9edaf01b0d4c
 ```
 
 
 
-<<<<<<< HEAD
+
 * 步骤二：绑定监听端口，设置连接为非阻塞模式
 
 ```java
@@ -289,10 +254,51 @@ acceptorSvr.configureBlocking(false) ;
   socketChannel.write(buffer);
   ```
 
+* 注意：如果发送区TCP 缓冲区满，会导致写半包，此时，需要注册监听写操作位，循环写，直到整包消息写入TCP缓冲区
 
 
-注意：如果发送区TCP 缓冲区满，会导致写半包，此时，需要注册监听写操作位，循环写，直到整包消息写入TCP缓冲区。
-=======
+
+
+#### nio 实例
+
+
+
+```
+public class TimeServer {
+	public static void main(String[] args) {
+		 int port = 8899;
+		  ServerSocket server = null;
+		   try {
+        server = new ServerSocket(port);
+        System.out.println("this time server is start in port: " + port);
+        Socket socket = null;
+        int i =0;
+        while (true) {
+            socket = server.accept();
+            i++;
+            Thread thread =  new Thread(new TimeServerHandler(socket));
+            thread.setName(i+" ");
+            thread.start();
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
+    } finally {
+        if (server != null) {
+            System.out.println("The time server close");
+            try {
+                server.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            server = null;
+        }
+    }
+}
+}
+```
+
+
+
 handler
 
 ```java
@@ -432,26 +438,3 @@ public class TimeClient {
 
 
 
->>>>>>> 2df7bbf337cae480b23d0493b55c9edaf01b0d4c
-
-
-
-
-
-
-
-
-
-
-
-
-
-<<<<<<< HEAD
-## NIO 编程的优点
-
-* 客户端发起的连接操作是异步的，可以通过在多路复用器注册OP_CONNECT等待后续结果，不需要像之前的客户端那样被同步阻塞。
-* SocketChannel的后续读写操作都是异步，如果没有课读写的数据他不会同步等待，直接返回，这样IO通信线程就可以处理其他的链路，不需要同步等待这个链路可用。
-* 线程模型的优化：由于Jdk的Selector在linux等主流操作系统上通过epoll实现，他没有连接句柄数的限制，这意味着一个Selector线程可以同时处理成千上万个客户端连接，而且性能不会随着客户端的增加而线性下降。因此，他非常适合做高性能，高负载的网络服务器。
-=======
-
->>>>>>> 2df7bbf337cae480b23d0493b55c9edaf01b0d4c
