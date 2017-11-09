@@ -10,7 +10,7 @@
 * 社区活跃，迭代周期短，发现的BUG可以被及时修复，同时，更多的新功能会加入。
 * 经历了大规模的商业应用考验,质量得到验证。
 
-<<<<<<< HEAD
+
 
 
 #### netty 实例代码
@@ -1294,15 +1294,24 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<TextWebS
 
 
 
+* 5，初始化ChannelPipeline 完成之后，添加并设置ChannelHandler。ChannelHandler是netty提供给用户定制和扩展的关键接口。利用channelHandler用户可以完成大多数的功能定制，例如消息解编码，心跳，安全认证，TSL/SSl 认证，流量控制和流量整形等。Netty同时提供了大量的系统ChannelHandler提供用户使用，比较使用的系统ChannelHandler总结如下。
+  * 系统编解码框架——ByteToMessageCodec;
+  * t通用基于长度的半包解码器——LengthFieldBaseFramDecoder;
+  * 码流日志打印Handler——LonggingHandler
+  * SSL 安全认证Handler—— SslHandler
+  * 链路空闲检测Handler——IdleStateHandler
+  * 流量整形Handler——ChannelTranfficShapingHandler
+  * Base64编解码——Base64Decoder和Base64Encoder
+* 6，绑定并启动监听端口。在绑定监听端口之前系统会做一系列的初始化和检测工作，完成之后，会启动监听端口，并将ServerSocketChannel注册到Selector上监听客户端连接。
+
+
+
+* 7，Selector 轮询。由Reactor线程NioEventLoop负责调度和执行Selector轮询操作，选择准备就系的Channel集合，
+* 8，当轮询到准备就绪的Channel之后，就由Reactor 线程NioEventLoop执行ChannelPipline的相应方法，最终调度并执行ChannelHandler.
+* 9，执行Netty系统ChannelHandler 和用户添加定制的ChannelHandler.ChannelPipline根据网络事件的类型，调度并执行ChannelHandler.
 
 
 
 
 
 
-
-
-
-
-=======
->>>>>>> ab35103c8eb5cb3b6ae9ea9c69c4044ee01ae0a8
