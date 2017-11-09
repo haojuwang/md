@@ -11,7 +11,7 @@ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.ta
 groupadd es
 useradd es -g es -p es 
 (3)把ES安装的文件夹的所属用户和组修改为上面创建的用户和组:
-chown -R es:es elasticsearch-2.3.4 
+chown -R es:es elasticsearch-5.5.0 
 (4)切换用户到es,然后就可以启动ES了: su es 
 (5)如果想要外部能访问,需要修改es绑定的network.host地址,想要后台运行,
 ￼可以用-d
@@ -32,12 +32,15 @@ java-1.4.2-gcj-compat-1.4.2.0-40jpp.115
 上面先确认jdk的具体版本号，然后使用rpm -e --nodeps命令删除上面查找的内容：
 
 #rpm -e --nodeps java-1.4.2-gcj-compat-1.4.2.0-40jpp.115
+
 ```
 
 #### 升级
 ```
 wget --no-check-certificate --no-cookie --header "Cookie: oraclelicense=accept-securebackup-cookie;" http://download.oracle.com/otn-pub/java/jdk/8u144-b01/090f390dda5b47b9b721c7dfaa008135/jdk-8u144-linux-x64.tar.gz
 
+### java 配置
+wget --no-check-certificate --no-cookie --header "Cookie: oraclelicense=accept-securebackup-cookie;" http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/jdk-8u151-linux-x64.tar.gz
 
 
 新建/usr/java文件夹，将jdk-8u25-linux-i586.tar.gz放到该文件夹中，并将工作目录切换到/usr/java目录下。
@@ -49,6 +52,17 @@ wget --no-check-certificate --no-cookie --header "Cookie: oraclelicense=accept-s
 
 sysctl -w vm.max_map_count=262144
 
+JAVA_HOME=/usr/java/jdk1.8.0_144
+PATH=$JAVA_HOME/bin:$PATH
+CLASSPATH=$JAVA_HOME/jre/lib/ext:$JAVA_HOME/lib/tools.jar
+export PATH JAVA_HOME CLASSPATH
+-------------------------------------------------------------
+
+##etc/profile
+JAVA_HOME=/usr/java/jdk1.8.0_151
+PATH=$JAVA_HOME/bin:$PATH
+CLASSPATH=$JAVA_HOME/jre/lib/ext:$JAVA_HOME/lib/tools.jar
+export PATH JAVA_HOME CLASSPATH
 
 
 
@@ -105,8 +119,44 @@ output {
         user => "elastic"
         password => "changeme"
     }
-
+      
 }
+
+/data/web/cloud_ins/log
+output {
+
+  elasticsearch {
+        hosts => ["211.167.232.2:9200"]
+          index => "%{type}-%{+YYYY.MM.dd}"
+          document_type => "%{type}"
+          user => "elastic"
+          password => "leyue100"
+    }
+}
+
+
+  mutate {
+        add_field => {
+          "alias" => "yunac2"
+        }
+      }
+
+
+https://www.elastic.co/guide/en/logstash/5.6/running-logstash.html#running-logstash-upstart
+
+1,wget https://artifacts.elastic.co/downloads/logstash/logstash-5.6.3.rpm
+2, rpm -ivh logstash-5.6.3.rpm
+3， cd /etc/logstash
+4,conf.d 下面写logstash
+5，initctl start logstash
+
+
+
+
+
+
+
+
 
 
 
@@ -129,6 +179,8 @@ http://elastic:leyue100@!@admin.ln12320.cn/9200/
 
 ## kibana
  ./kibana-plugin install x-pack
+
+ wget https://artifacts.elastic.co/downloads/kibana/kibana-5.5.0-linux-x86_64.tar.gz
 
 修改密码
 curl -XPUT -u elastic 'http://admin.ln12320.cn/9200/_xpack/security/user/kibana/_password' -d '{"password" : "leyue100@!"}'
