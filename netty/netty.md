@@ -1325,8 +1325,6 @@ NioEventLoopGroup 实际上就是Reactor 线程池，负责调度和执行客户
 
 ![group](../images/group.png)
 
-
-
 线程组合线程类型设置完成后，需要设置服务器端Channel用户端口监听和客户端链路接入。
 
 指定NioServerSocketChannel后，需要设置TCP的一些参数，作为服务器端，主要设置TCP的backlog参数，backlog 指定了内核为套接口排队的最大连接数，对于给定的监听套接口，内核维护两个队列：为链接队列和已连接队列，backlog被规定为两个队列总和的最大值，大多数实现默认值为5，但在高并发web服务器中此值显然不够，Netty默认的backlog为100
