@@ -155,3 +155,61 @@ maven的约定：各种约定目录，代码、资源，输出，测试
 
 ## 第七讲安装eclipse
 
+设置meven 目录
+
+![maven 架构图](../images/eclipse.png)
+
+
+
+
+
+## 第十讲 maven 知识点
+
+每个maven项目都有一个坐标
+
+```
+groupId + artifactId + version + packageing + classifier 五个维度的坐标，唯一定位一个依赖包 
+```
+
+```
+实际开发中只需要 groupId + artifactId + version 来定位一个唯一依赖
+```
+
+```
+groupId 公司或者组织 官网域名倒叙来开头
+com.zhss.hr
+com.zhss.finance
+com.zhss.crm
+```
+
+```
+artifactId: 项目中的某个模块或者某个服务
+com.zhss.oa，oa-organ，organ是缩写，organization
+com.zhss.oa，oa-auth，auth是authorization
+com.zhss.oa，oa-flow，flow就是流程的意思
+
+```
+
+```
+version：这个工程的版本号
+```
+
+
+
+#### 设置坐标的作用
+
+```
+groupId + artifactId +version 就成了这一次这个工程目前这个状态的唯一的标识和定位。
+将这个版本的代码的jar包，上传到maven的中央仓库，供其他人来使用这个版本的代码的jar包
+给公司其他人来使用，只有你也有一个坐标，才能让别人唯一定位你的项目某个版本的代码的jar包，让maven下载后给别人用
+```
+
+
+
+#### 坐标的思路
+
+1，坐标有哪些元素
+
+2，坐标每个元素都是什么意思，怎么设置
+
+3，设置了坐标之后的意义在哪
