@@ -213,3 +213,113 @@ groupId + artifactId +version 就成了这一次这个工程目前这个状态�
 2，坐标每个元素都是什么意思，怎么设置
 
 3，设置了坐标之后的意义在哪
+
+
+
+
+
+
+
+## 第十一讲 eclipse 结合maven 使用
+
+
+
+## 第十二课 maven 依赖管理
+
+#### 用<dependency> 可以引用任何你需要的依赖
+
+```xml
+  		<dependency>  
+            <groupId></groupId>  
+            <artifactId></artifactId>  
+            <version></version>  
+            <type></type>  
+            <scope></scope>  
+            <optional></optional>
+          	
+        </dependency>  
+```
+
+
+
+#### 去哪里找需要的依赖
+
+* 官网
+
+* maven 仓库
+
+  ```
+  http://search.maven.org/
+  http://repository.sonatype.org
+  http://www.mvnbrowser.com/
+  http://mvnrepository.com/
+  ```
+
+  ​
+
+#### 依赖范围
+
+```
+<scope></scope>
+```
+
+Maven 有三套classpath,classpath 就是项目中用到的各种依赖的类，jvm在运行的时候需要去classpath 下面加载对应的类：
+
+* 1，主代码编译时一套classpath。
+
+* 2，编译测试代码以及执行测试代码的时候一套classpath
+
+* 3,   被打包运行的时候一套classpath
+
+  依赖范围就是用来控制依赖包与这三种classpath的关系的。
+
+不同的依赖范围，会导致那个依赖包可能在编译，测试或者打包运行的时候，有时候可以使用，有时候不能够使用。
+
+##### 依赖范围的值
+
+```
+compile ： 默认，对主代码编译，测试，运行都有效。一般都是用这种scope
+```
+
+```
+test: 仅仅对于运行测试代码的classpath有效，对于主代码或者打包运行的时候无效，仅仅测试代码需要用的依赖一般都会设置为这个范围，比如junit,这种返回的依赖不会出现在最终打包发布包里面的，减少发布包的体积。
+```
+
+```
+provided:对主代码和测试代码有效，但是在运行的时候无效，因为可能环境已经提供了，比如servlet-api。
+```
+
+```
+runtime:测试和运行classpath 有效，但是编译代码时无效，比如jdbc的驱动实现类，比如mysql驱动。因为写代码的时候基于javax.sql包下的标准接口去写代码
+```
+
+
+
+
+
+
+
+![传递性依赖影响范围](../images/传递性依赖影响范围.jpg)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+![依赖范围](../images/依赖范围.JPG)
+
+
+
+
+
