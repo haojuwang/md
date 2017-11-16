@@ -1,8 +1,16 @@
 https://xuanwo.org/2016/04/13/gitlab-install-intro/
 
-
+10.44.179.135
 
 find / -name gitlab.yml
+
+tail -f /var/log/secure
+
+git:x:1001:1002::/var/opt/gitlab:/bin/sh
+
+
+
+http://wlog.cn/soft/git-ssh-server-for-debian.html
 
 
 
@@ -40,20 +48,3 @@ find / -name gitlab.yml
 
 
 
-
-
-测试步骤：
-
-1.进入到资料上传页面后，仅上传一张图片，点击“提交”按钮
-
-2.返回进入商保理赔记录页面
-
-3.再次进入商保理赔详情页面
-
-4.点击“上传资料”进入详情页面
-
-5.点击资料上传区域的“查看详情”
-
-结果：
-
-直接crash了
