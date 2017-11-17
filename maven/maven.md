@@ -364,3 +364,96 @@ maven 会自动解析所有层级的依赖，给我们自动下载所有的依�
 * 6，传递性依赖的多层级的依赖范围，交叉影响的结果。
 * 7，依赖调解，碰到一个项目多个版本，启动根据两大就近原则来选择一个最合适的版本来使用。
 * 可选依赖，不向上传递。
+
+
+
+
+## 第十三课 maven 依赖冲突
+
+#### maven 依赖冲突的原因
+
+```
+当项目依赖了一个jar  这个又依赖了D 1.0版本   项目依赖了另一个jar 它却依赖了D2.0版本  
+```
+
+比如你依赖了A和B，此时A依赖了C-1.0，B依赖了D，D依赖了C-2.0
+
+X
+
+  -> A
+
+-> C-1.0
+
+  -> B
+
+-> D
+
+  -> C-2.0
+
+X -> A -> C-1.0
+
+X -> B -> D -> C-2.0
+
+此时就会导致的事情是，由于A -> C1.0是最短路径，所以会用C1.0
+
+但是坑爹的事情发生了，B依赖的是D，D依赖的C结果用了C-1.0版本
+
+D本来用的是C-2.0的一个方法，但是现在给D的时C-1.0的一个类
+
+比如C-1.0的类CClass.sayHello()
+
+C-2.0给类CClass加了一些方法，比如CClass.printHello()，同时也有CClass.sayHello()方法
+
+D调用了C-2.0里面的printHello()这个方法
+
+如果用的时C-1.0，把C-1.0的CClass提供给D去用，D去调用printHello()方法的时候，就会报错。。。
+
+C这个项目的CClass这个类的printHello()这个方法没有找到，not found的异常
+
+
+
+#### 解决依赖冲突
+
+1，先查看依赖的路径
+
+```
+mvn depedency:tree这个命令
+
+
+com.maven:maven1:jar:1.0-SNAPSHOT
+[INFO] +- org.springframework:spring-core:jar:3.2.8.RELEASE:compile
+[INFO] |  \- commons-logging:commons-logging:jar:1.1.3:compile
+[INFO] +- org.springframework:spring-webmvc:jar:3.2.8.RELEASE:compile
+[INFO] |  +- org.springframework:spring-beans:jar:3.2.8.RELEASE:compile
+[INFO] |  \- org.springframework:spring-expression:jar:3.2.8.RELEASE:compile
+[INFO] +- org.springframework:spring-context:jar:3.2.8.RELEASE:compile
+[INFO] +- org.springframework:spring-context-support:jar:3.2.8.RELEASE:compile
+[INFO] +- org.springframework:spring-aop:jar:3.2.8.RELEAS
+```
+
+2,让其不包含依赖版本
+
+````
+  <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>3.2.8.RELEASE</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+````
+
+
+
+
+
+#### 总结
+
+* 1，maven工作中最常见的依赖冲突问题的现象。
+* 产生的原因是什么
+* 解决的思路
+* 具体用什么命令和配置去解决
