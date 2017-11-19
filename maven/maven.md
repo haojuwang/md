@@ -45,7 +45,6 @@ maven 有一个重要的配置文件，就是settings.xml ，这个文件默认�
     <name>Nexus aliyun</name>
     <url>http://maven.aliyun.com/nexus/content/groups/public</url>
 </mirror>
-
 ```
 
 
@@ -457,3 +456,664 @@ com.maven:maven1:jar:1.0-SNAPSHOT
 * 产生的原因是什么
 * 解决的思路
 * 具体用什么命令和配置去解决
+
+
+
+
+
+
+
+## 第十五讲 nexus安装
+
+
+
+#### 下载
+
+http://nexus.sonatype.org/downloads/
+
+
+
+nexus-3.6.1-02 : 这里包含nexus 运行需要的文件
+
+sonatype-work: 包含nexus的配置文件，日志文件，仓库文件
+
+
+
+#### 运行
+
+nexus {start|stop|run|run-redirect|status|restart|force-reload}
+
+
+
+#### 访问地址
+
+http://10.211.55.3:8081/
+
+
+
+#### 默认用户名密码
+
+admin
+
+admin123
+
+
+
+#### 可以修改的配置文件
+
+* nexus-3.6.1-02/bin/nexus.vmoptions 修改jvm参数
+
+```
+cat nexus.vmoptions
+-Xms1200M
+-Xmx1200M
+-XX:MaxDirectMemorySize=2G
+-XX:+UnlockDiagnosticVMOptions
+-XX:+UnsyncloadClass
+-XX:+LogVMOutput
+-XX:LogFile=../sonatype-work/nexus3/log/jvm.log
+-XX:-OmitStackTraceInFastThrow
+-Djava.net.preferIPv4Stack=true
+-Dkaraf.home=.
+-Dkaraf.base=.
+-Dkaraf.etc=etc/karaf
+-Djava.util.logging.config.file=etc/karaf/java.util.logging.properties
+-Dkaraf.data=../sonatype-work/nexus3
+-Djava.io.tmpdir=../sonatype-work/nexus3/tmp
+-Dkaraf.startLocalConsole=false
+```
+
+
+
+* nexus-3.6.1-02/etc/nexus-default.properties 修改端口 ip
+
+  ```
+  cat nexus-default.properties
+  ## DO NOT EDIT - CUSTOMIZATIONS BELONG IN $data-dir/etc/nexus.properties
+  ##
+  # Jetty section
+  application-port=8081
+  application-host=0.0.0.0
+  nexus-args=${jetty.etc}/jetty.xml,${jetty.etc}/jetty-http.xml,${jetty.etc}/jetty-requestlog.xml
+  nexus-context-path=/
+
+  # Nexus section
+  nexus-edition=nexus-pro-edition
+  nexus-features=\
+   nexus-pro-feature
+  ```
+
+  ​
+
+
+
+## 第十六讲 maven 仓库
+
+#### maven 四种仓库
+
+* Hosted: 宿主仓库
+* proxy：代理仓库
+* group: 仓库组
+* 3rd party：宿主仓库
+
+
+
+#### hosted:宿主仓库
+
+```
+hosted：宿主仓库，这个仓库，是用来让你把你公司内部的发布包部署到这个仓库里来，然后公司内的其他人可以从这个宿主仓库里下载依赖去使用。
+```
+
+
+
+#### proxy:代理仓库
+
+```
+proxy代理仓库，这个仓库不是用来给你公司内部的发布包部署的，是代理了公司外部的各种仓库，比如说java.net,codehaus,jboss仓库，最重要的是代理公司外部的中央仓库，但是这里其实可以修改为nexus连接的应该是国内的阿里云镜像仓库，阿里云去连接中央仓库。
+```
+
+
+
+#### group 仓库组
+
+```
+group仓库组，其实就是将，各种宿主仓库，代理仓库全部组成一个虚拟的仓库组，然后我们的项目只要配置依赖于一个仓库组，相当于就是可以自动连接仓库组对应的各种仓库。
+```
+
+
+
+#### maven-central
+
+```
+就是maven中央仓库的代理仓库。
+```
+
+
+
+#### maven-releases
+
+```
+该仓库是个宿主仓库，用于部署公司内部的release 版本的发布包(类似于1.0.0 release的意思你的工程已经经过了完善的测试，单元测试，集成测试,QA测试，上生产环境使用了)到这个仓库里面，供其他同事在生产环境依赖和使用。
+```
+
+
+
+#### maven-snapshots
+
+```
+该仓库是个宿主仓库，用于部署公司内部的snapshot版本的发布包到这个仓库(如果你的某个工程还在开发过程中，测试还没有结束，但是此时公司其他同时也在开发一些工程，需要依赖你的包进行开发和测试，联调，测试你的工程版本就是类似1.0.0-Snapshot这样的版本),供其他同事在开发和测试的时候使用。
+```
+
+
+
+#### 3rd party
+
+```
+该仓库是个宿主仓库，主要用来部署没法从公共仓库获取的第三方依赖包，比如说，你的公司依赖于第三方支付厂商的一个依赖包，那个依赖包不是开源的，是商业的包，那么你是没有办法从maven中央仓库获取的，此时，我们可能会自己手动从支付厂商哪里获取到一个jar包，下载之后上传到私服里来，就放这个仓库里，3rd-party仓库。
+```
+
+
+
+
+
+
+
+#### nexus仓库架构图
+
+![nexus仓库架构](../images/nexus仓库架构.png)
+
+
+
+
+
+
+
+## 第十七讲 搭建各种仓库
+
+
+
+#### maven-public 已有
+
+#### maven-central代理仓库
+
+```
+maven-central代理仓库：从直接代理maven中央仓库，修改为代理阿里云仓库，
+http://maven.aliyun.com/nexus/content/groups/public
+```
+
+#### maven-snapshots 宿主仓库已有
+
+#### maven-releases宿主仓库已有
+
+#### 创建3rd-party仓库
+
+
+
+![3rd-party_1](../images/3rd-party_1.png)
+
+
+
+![3rd-party_1](../images/3rd-party_2.png)
+
+
+
+![3rd-party_1](../images/3rd-party_3.png)
+
+
+
+
+
+![3rd-party_1](../images/3rd-party_4.png)
+
+
+
+
+
+## 第十八讲 强制依赖从私服下载
+
+#### 在 .m2/setting.xml 中设置
+
+```Xml
+
+
+   <mirror>
+    <id>nexus</id>
+    <mirrorOf>*</mirrorOf>
+    <url>http://10.211.55.3:8081/repository/maven-public/</url>
+  </mirror>
+
+
+
+<profile>
+    <id>nexus</id>
+        <repositories>
+            <repository>
+                <id>central</id>
+                <name>Nexus </name>
+              <url>http://10.211.55.3:8081/repository/maven-public/</url>
+                <releases><enabled>true</enabled></releases>
+                <snapshots><enabled>true</enabled></snapshots>
+            </repository>
+        </repositories>
+        <pluginRepositories>
+            <pluginRepository>
+                <id>central</id>
+                <name>Nexus Plugin Repository</name>
+            <url>http://10.211.55.3:8081/repository/maven-public/</url>
+                <releases><enabled>true</enabled></releases>
+                <snapshots><enabled>true</enabled></snapshots>
+            </pluginRepository>
+        </pluginRepositories>
+  </profile>
+  </profiles>
+
+  <activeProfiles>
+  <activeProfile>nexus</activeProfile>
+</activeProfiles>
+```
+
+
+
+* id设置为  repository id 设置为 central 和  pluginRepository id 设置为central的目的就是覆盖掉默认的中央仓库maven-model-builder-3.5.2.jar
+* url 设置为 nexus maven-public 的地址。
+* mirror 是让所有的依赖下载的url地址走私服nexus
+
+
+
+
+
+##第十九讲 权限管理机制创建部署专用账号
+
+nexus的权限是典型的RBAC模型，role-based access control。 每个用户可以分配多个多个角色，每个角色分配多少个权限，每个权限就是一个具体的功能，比如浏览依赖，部署发布包。
+
+Nexus 默认有三个用户：
+
+```
+admin 管理员账号，admin123
+
+deployment，可以搜索和部署构建，就是普通的开发账号，密码是deployment123(在nexus 3.x最新版本已经被撤销掉了)
+
+anonymous: 如果没有给认证信息，就是这个匿名账号，可以下载依赖，查看依赖
+```
+
+
+
+#### 创建一个专门用来部署的账号 depoyment
+
+```
+1,涵盖所有匿名账号的权限，至少可以搜索仓库，下载依赖。
+2，对仓库有所有的权限管理权限，就可以往仓库中去部署发布包。
+```
+
+
+
+#### 创建角色
+
+![3rd-party_1](../images/create_role.png)
+
+
+
+
+
+#### 创建用户
+
+![3rd-party_1](../images/create_user.png)
+
+
+
+
+
+
+
+## 第二十讲 本地项目jar 部署到nexus私服
+
+#### 1,发布仓库配置
+
+将项目发布包部署到哪个仓库中，是需要用下面的pom.xml中的配置来设置
+
+```Xml
+    <distributionManagement>
+        <repository>
+            <id> nexus-releases</id>
+            <name> Nexus Release Repository</name>
+            <url>http://10.211.55.3:8081/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id> nexus-snapshots</id>
+            <name> Nexus Snapshot Repository</name>
+            <url>http://10.211.55.3:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+```
+
+```
+<version>1.0-SNAPSHOT</version> 会部署到nexus-snapshots仓库
+<version>1.0</version> 会部署到nexus-releases仓库
+```
+
+
+
+![](../images/version.png)
+
+
+
+#### 2,部署专用账号的配置
+
+nexus仓库对于普通的匿名用户是只读的，也就是说，只要下载依赖，不能部署发布包，因此如果要能够部署发布包，还需要在settings.xml文件里通过<server>元素配置使用专用的部署用户，来通过认证，进行发布包的部署。
+
+需要在settings中配置：
+
+```
+  <server>
+    <id>nexus-releases</id>
+    <username>deployment</username>
+    <password>123456</password>
+  </server>
+  <server>
+    <id>nexus-snapshots</id>
+    <username>deployment</username>
+    <password>123456</password>
+  </server>
+```
+
+
+
+#### 3,执行maven deploy 命令部署到私服
+
+mvn clean deploy命令，就可以让maven自动给我们编译源代码，运行单元测试，打成jar包，将jar包安装到本地仓库，将jar包部署到配置的远程仓库里面去。
+
+在私服上面，如果上传snapshot版本的jar包时会自动带一个时间戳，这个主要是因为考虑到在开发过程中会频繁的部署snapshot包，所以会用时间戳来区分一下，但是这个对我们是透明的，如果我们团队里其他同时要用你的这个snapshot jar包，直接还是用你的坐标来生命依赖就可以了，它是不用去考虑这个时间戳的问题的，私服会替你管理好。
+
+
+
+
+
+#### maven 命令的说明
+
+```
+mvn clean package: 清理，编译，测试，打包.
+```
+
+```
+mvn clean install: 清理，编译，测试，打包，安装到本地仓库，比如你自己负责了3个工程的开发，相互之间有依赖，那么如果你开发好其中一个工程，需要在另外一个工程中医用它，此时就需要将开发好的工程jar包安装到本地仓库，然后才可以在另外一个工程声明对他的依赖，此时会直接取用本地仓库中的jar.
+```
+
+```
+mvn clean deploy:清理，编译，测试，打包，安装到本地仓库，部署到远程私服，这个其实就是你负责的工程写好了部分代码，别人需要依赖你的jar包中提供的接口来写代码和测试。此时你需要将snapshot jar包发布到私服的maven-snapshots仓库中。供给人在本地生命对你的依赖和使用
+```
+
+
+
+#### 3rd-party 将jar包部署到nexus中
+
+##### 1，在settings.xml 加入
+
+```Xml
+<server>
+    <id>nexus-3rd-party</id>
+    <username>deployment</username>
+    <password>123456</password>
+  </server>
+```
+
+2,通过mvn 命令上传文件
+
+```Java
+ mvn deploy:deploy-file -DgroupId=com.csource -DartifactId=fastdfs-client-java -Dversion=1.24 -Dpackaging=jar -Dfile=/Users/lixueqin/fastdfs_client_v1.24.jar -Durl=http://10.211.55.3:8081/repository/3rd-party/ -DrepositoryId=nexus-3rd-party
+
+```
+
+
+
+* 注意：-DrepositoryId=nexus-3rd-party 一定要和settings.xml 的id 一致
+
+
+
+
+
+## 第二十二讲 maven生命周期和plugin执行原理
+
+#### 图解mave生命周期以及执行原理
+
+![](../images/maven_生命周期.png)
+
+
+
+
+
+
+
+```
+maven 生命周期，就是去解析mvn 各种命令背后的原理
+```
+
+```
+清理，初始化，编译，测试，打包，集成测试，验证，部署，站点生成。
+```
+
+```
+maven 有三套完全独立的生命周期，clean default 和site.每套生命周期都可以独立运行，每个生命周期的运行都会包含多个phase，每个phase又是各种插件的goal来完成的，一个插件的goal可以认为是一个功能。
+
+这就是maven的生命周期-> phase(可以理解为阶段)->插件的关系，也是maven构建执行的核心原理。
+```
+
+
+
+```
+你每次执行一个生命周期，都会依赖执行这个生命周期内部的多个phase,每个phase执行时都会执行某个插件的goal完成具体的功能
+```
+
+
+
+#### maven的生命周期以及phase
+
+* Clean 生命周期包含的phase如下
+
+  ```
+  pre-clean
+  clean
+  post-clean
+  ```
+
+  ​
+
+* Default 生命周期包含的phase如下：
+
+  ```
+  validate：校验这个项目的一些配置信息是否正确
+
+  initialize：初始化构建状态，比如设置一些属性，或者创建一些目录
+
+  generate-sources：自动生成一些源代码，然后包含在项目代码中一起编译
+
+  process-sources：处理源代码，比如做一些占位符的替换
+
+  generate-resources：生成资源文件，才是干的时我说的那些事情，主要是去处理各种xml、properties那种配置文件，去做一些配置文件里面占位符的替换
+
+  process-resources：将资源文件拷贝到目标目录中，方便后面打包
+
+  compile：编译项目的源代码
+
+  process-classes：处理编译后的代码文件，比如对java class进行字节码增强
+
+  generate-test-sources：自动化生成测试代码
+
+  process-test-sources：处理测试代码，比如过滤一些占位符
+
+  generate-test-resources：生成测试用的资源文件
+
+  process-test-resources：拷贝测试用的资源文件到目标目录中
+
+  test-compile：编译测试代码
+  process-test-classes：对编译后的测试代码进行处理，比如进行字节码增强
+
+  test：使用单元测试框架运行测试
+
+  prepare-package：在打包之前进行准备工作，比如处理package的版本号
+
+  package：将代码进行打包，
+
+  pre-integration-test：在集成测试之前进行准备工作，比如建立好需要的环境
+
+  integration-test：将package部署到一个环境中以运行集成测试
+
+  post-integration-test：在集成测试之后执行一些操作，比如清理测试环境
+
+  verify：对package进行一些检查来确保质量过关
+
+  install：将package安装到本地仓库中，这样开发人员自己在本地就可以使用了
+
+  deploy：将package上传到远程仓库中，这样公司内其他开发人员也可以使用了
+
+  ```
+
+  ​
+
+* site 生命周期的phase
+
+  ```
+  pre-site
+  site
+  post-size
+  site-deploy
+  ```
+
+  ​
+
+
+
+#### 默认的phase和plugin绑定
+
+我们直接运行mvn clean package 的时候，每个phase都是由插件的goal来完成的，phase和plugin绑定关系是什么样的？
+
+实际上，默认maven就绑定了一些plugin goal到phase到上去了，
+
+类似于resources:resources 这种格式，说的就是resources这个plugin的resources
+
+```
+processs-resources  resources:resources
+
+compile 	complier:compile
+
+process-test-resources			resources:testResources
+
+test-compile					compiler:testCompile
+
+test								surefire:test
+
+package							jar:jar或者war:war
+
+install							install:install
+
+deploy							deploy:deploy
+
+```
+
+
+
+* Site 生命周期的默认绑定是
+
+  site 			site:site
+
+  Site-deploy		site:deploy
+
+  ​
+
+* Clean 生命周期的默认
+
+  clean   clean:clean
+
+
+
+#### maven 的命令和生命周期
+
+* 比如 mvn clean package
+
+clean 是指的clean 生命周期中的clean phase
+
+Package 是指的default生命周期中的package phase
+
+此时就会执行clean生命周期，在clean phase之前的所有phase和clean phase    pre-clean ,clean
+
+同时会执行defalut 生命周期中，在package phase之前的所有phase和package phase
+
+
+
+* Mvn clean package 
+
+  ​	clean生命周期的pre-clean ,clean 两个phase
+
+  但是 ，pre-clean默认是没有绑定任何一个plugin goal的，所以默认什么也不会干；clean phase默认是绑定了 clean:clean,clean plugin的clean goal，所以就会执行clean插件的clean goal 就会实现一个功能，清理target目录下的文件 
+
+
+
+
+
+````
+mvn dependency:tree
+mvn deploy:deploy-file
+
+这就是不执行任何一个生命周期的任何一个phase,直接执行指定的插件的一个goal.
+dependency:tree 就是直接执行dependency 这个插件的tree 这个goal,这个意思就是会自动分析pom.xml 里面的依赖生命，递归解析所有的依赖，然后打印出一颗依赖树。
+
+mvn deploy:deloy-file,就是直接执行deploy这个插件的deploy-file这个goal,这个意思就是说将制定项目的jar包，以指定的坐标，部署到指标的maven私服仓库里去，同时使用指定仓局id对应的server的账号和密码
+````
+
+
+
+
+
+
+
+## 第二十三讲 插件配置
+
+#### 1，plugin和goal
+
+```
+plugin
+每个插件都有多个goal,每个goal 都是一个具体的功能
+例如： dependency插件有十几个goal,可以进行分析项目依赖，列出依赖树
+
+插件的goal,写法就是plugin:goal,比如dependency:tree
+
+用mvn plugin:goal 就可以手动执行某个插件的goal,执行某种功能
+```
+
+
+
+#### 2，将插件的goal绑定到phase上
+
+maven 内置就会绑定一些插件的goal到phase上，如何手动将插件的goal 绑定到phase上？
+
+将source插件的jar-no-fork goal 绑定到verif  phase,在完成集成测试之后，就生成源码的jar包
+
+ ```
+ 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+ ```
+
+
+
+* 把goals绑定到phase上面
+* 运行 mvn verify
+* http://maven.apache.org/plugins/index.html 常用插件
+
+ 
