@@ -803,7 +803,7 @@ nexus仓库对于普通的匿名用户是只读的，也就是说，只要下载
 
 需要在settings中配置：
 
-```
+```xml
   <server>
     <id>nexus-releases</id>
     <username>deployment</username>
@@ -928,7 +928,7 @@ maven 有三套完全独立的生命周期，clean default 和site.每套生命�
 
   process-sources：处理源代码，比如做一些占位符的替换
 
-  generate-resources：生成资源文件，才是干的时我说的那些事情，主要是去处理各种xml、properties那种配置文件，去做一些配置文件里面占位符的替换
+  generate-resources：生成资源文件，主要是去处理各种xml、properties那种配置文件，去做一些配置文件里面占位符的替换
 
   process-resources：将资源文件拷贝到目标目录中，方便后面打包
 
@@ -964,7 +964,6 @@ maven 有三套完全独立的生命周期，clean default 和site.每套生命�
   install：将package安装到本地仓库中，这样开发人员自己在本地就可以使用了
 
   deploy：将package上传到远程仓库中，这样公司内其他开发人员也可以使用了
-
   ```
 
   ​
@@ -1006,7 +1005,6 @@ package							jar:jar或者war:war
 install							install:install
 
 deploy							deploy:deploy
-
 ```
 
 
@@ -1116,4 +1114,54 @@ maven 内置就会绑定一些插件的goal到phase上，如何手动将插件�
 * 运行 mvn verify
 * http://maven.apache.org/plugins/index.html 常用插件
 
- 
+
+
+
+## 第二十六讲 多模块统一构建
+
+```
+maven 聚合功能就是将各个模块，聚合成一个大的模块，给它一个父工程，那个父模块里面聚合了所有的子模块
+
+只要对父模块运行一次构建命令，此时maven 会自动对这个模块下面的所有子模块都运行响应的构建命令，这样就可以保证一键自动化构建所有的模块，不要一个一个依次去构建。
+```
+
+如果要一次性构建多个模块的工程，那么就需要创建一个父工程，我们可以创建一个os-parent工程
+
+```xml
+  <groupId>com.oa</groupId>
+  <artifactId>oa-parent</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <modules>
+
+    <module>oa_flow</module>
+    <module>oa_organ</module>
+    <module>oa_auth</module>
+
+  </modules>
+```
+
+
+
+* packaging 设置为pom
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

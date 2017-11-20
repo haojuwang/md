@@ -144,7 +144,7 @@ output {
 
 https://www.elastic.co/guide/en/logstash/5.6/running-logstash.html#running-logstash-upstart
 
-1,wget https://artifacts.elastic.co/downloads/logstash/logstash-5.6.3.rpm
+1, wget https://artifacts.elastic.co/downloads/logstash/logstash-5.6.3.rpm
 2, rpm -ivh logstash-5.6.3.rpm
 3， cd /etc/logstash
 4,conf.d 下面写logstash
@@ -174,7 +174,7 @@ http://admin.ln12320.cn/9200/?auth_user=elastic&auth_password=leyue100@!
 
 http://elastic:leyue100@!@admin.ln12320.cn/9200/
 
-
+ url = git@github.com:haojuwang/md.git
 
 
 ## kibana
@@ -194,4 +194,4 @@ http://blog.csdn.net/u011587666/article/details/54755662
 
 curl -XPUT -u elastic:leyue100 'http://10.10.10.1:9200/_xpack/license?acknowledge=true' -d @li-hao-9f3b1787-dfec-48b5-93f4-2e89b5fb27d1-v5.json
 
-
+systemctl start logstash.service
