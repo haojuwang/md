@@ -1150,6 +1150,74 @@ maven 聚合功能就是将各个模块，聚合成一个大的模块，给它�
 
 
 
+## 第二十七讲 dependencyManagemnent和pluginManagement
+
+* dependencyManagement 语法
+
+```
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId></groupId>
+            <artifactId></artifactId>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+
+
+* pluginManagement 语法
+
+```
+<pluginManagement>
+    <plugins>
+        <plugin>
+            
+        </plugin>
+    </plugins>
+</pluginManagement>
+```
+
+
+
+将所有工程相同依赖和插件的配置，全部放入父工程中，此时子工程就会继承父工程依赖和插件，不需要每个工程都重复定义，而且可以在父工程中统一约束所有依赖和插件的版本。
+
+但是这里有个问题，如果直接将所有依赖和插件直接放入父工程，会导致子工程强制性继承，也许自工程并不需要某些依赖呢？
+
+此时最好的做法，就是在父工程中，使用<dependencyManagement>元素和<pluginManagement>元素，来声明所有的依赖和插件。
+
+此时在工程中，就可以对需要的依赖进行声明，但是不用定义版本号，只要groupId和artifactId即可。这样声明之后才会继承依赖，而且版本由父工程约束。
+
+```
+dependencyManagement和pluginManagement的意义在哪？一般来说，很多人都没搞清楚用上面说的那两个元素进行继承，以及直接在parent里面放dependencies 和 plugins里面放依赖和插件来继承，他们俩的区别在哪？
+
+如果在父工程中，直接用dependencies 和 plugins来声明依赖和插件，子工程会全部强制继承；如果用dependencyManagement和pluginManagement来声明依赖和插件，默认情况下，子工程什么都不继承，只有当子工程声明了某个依赖或者插件的groupId+ artifactId,但是不指定版本时，才会从父工程继承那个依赖。在规范的工程管理中，肯定都是用dependencyManagement和pluginManagement的。
+```
+
+
+
+
+
+## 第二十八讲 版本号统一控制
+
+```
+一般都会在properties元素里面，统一定义一个版本号，然后在这个类似spring的依赖里面，全部用${} 占位符来引用一个版本号，那么每次修改，升级版本，就直接修改properties元素中的一个地方就可以了，不会出错。
+```
+
+```xml
+   <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.version>3.2.8.RELEASE</spring.version>
+    </properties>
+    
+     <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-core</artifactId>
+          <version>${spring.version}</version>
+     </dependency>
+```
+
 
 
 
