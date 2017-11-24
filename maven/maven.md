@@ -1223,6 +1223,27 @@ dependencyManagement和pluginManagement的意义在哪？一般来说，很多�
 
 
 
+## 第三十讲 环境搭建
+
+```
+   <!-- oa系统的几个模块依赖 -->
+        <dependency>
+            <groupId>com.oa</groupId>
+            <artifactId>oa_organ</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oa</groupId>
+            <artifactId>oa_auth</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oa</groupId>
+            <artifactId>oa_flow</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+```
 
 
 
@@ -1230,7 +1251,76 @@ dependencyManagement和pluginManagement的意义在哪？一般来说，很多�
 
 
 
+## 第三十一讲 surefire 插件和cobertura插件
+
+#### surefire 插件单元测试
+
+```
+maven 中默认内置了surefire插件来运行单元测试，与最流行的junit单元测试框架整合非常好。一般是在default生命周期的test阶段，会运行surefire插件的test goal ,然后执行src/test/java下面的所有单元测试的。
+surefire 插件会根据一定的规则在sre/test/java下面找单元测试类，具体规则如下：
+
+**/Test*.java
+**/*Test.java
+**/*TestCase.java
+
+通常比较流行的是用*Test.java格式类命名单元测试的类。
+```
+
+##### 自定义包含与排除测试类
+
+````Xml
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-surefire-plugin</artifactId>
+  <version>2.5</version>
+  <configuration>
+    <includes>
+      <include>**/*Tests.java</include>
+    </includes>
+    <excludes>
+      <exclude>**/*TempTest.java</exclude>
+    </excludes>
+  </configuration>
+</plugin>
+
+````
 
 
+
+#### cobertura插件 测试覆盖率的报告 
+
+```Xml
+<plugin>  
+                <groupId>org.codehaus.mojo</groupId>  
+                <artifactId>cobertura-maven-plugin</artifactId>  
+                <version>2.5.1</version>  
+            </plugin>
+
+oa-web.pom
+ <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+            </plugin>
+```
+
+
+
+##### 执行命令
+
+```
+mvn cobertura:cobertura
+
+报告在 target/site/cobertura/下面
+```
+
+
+
+​            -2            -1
+
+ 8          9          10          11     12 
+
+​           7200     3600        0
+
+​           120       60           0
 
 
