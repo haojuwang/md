@@ -1160,6 +1160,7 @@ maven 聚合功能就是将各个模块，聚合成一个大的模块，给它�
         <dependency>
             <groupId></groupId>
             <artifactId></artifactId>
+           <version></version>
         </dependency>
     </dependencies>
 </dependencyManagement>
