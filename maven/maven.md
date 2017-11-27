@@ -1315,7 +1315,7 @@ mvn cobertura:cobertura
 
 
 
-<<<<<<< HEAD
+
 
 
 ## 第三十二讲 jetty 插件使用
@@ -1468,6 +1468,7 @@ settings.xml文件里，有一个东西叫做pluginGroups
                               <cargo.hostname>10.211.55.3</cargo.hostname>
                               <cargo.tomcat.ajp.port>8009</cargo.tomcat.ajp.port>
                           </properties>
+  ```
 
 
 
@@ -1503,7 +1504,7 @@ settings.xml文件里，有一个东西叫做pluginGroups
 
 #### 常见的开发环境
 
-```
+  ```
 dev:即本地开发和测试环境，这个就是指的是我们项目本地的笔记本电脑，在上面可以进行开发，单元测试，冒烟测试。比如说你的local本地环境需要有一些基础性的依赖设施，比如说数据库，比如说MQ，比如说redis。这些东西，mysql、rabbit mq、redis，都是部署在公司的一套公共的一个dev环境，有一套服务器，上面会部署各种项目组成员在本地开发，需要的各种依赖设施。保证你在本地开发的时候，指定对应的地址，都是可以连通，笔记本电脑连通的。
 
 ```
@@ -1558,7 +1559,7 @@ dev环境下，通常是用的开发人员自己本地安装的一个数据库�
 
 * 替换文件标签
 
-  ```
+```
   jdbc.url = ${jdbc.url}
   jdbc.driver = ${jdbc.driver}
   jdbc.username= ${jdbc.username}
@@ -1673,16 +1674,17 @@ src/main/profiles/prod
                       </resource>
 
                   </resources>
+  ```
 
 
               </build>
           </profile>
-
+    
           <profile>
               <id>dev</id>
               <build>
                   <resources>
-
+    
                       <resource>
                           <directory>src/main/profiles/dev</directory>
                           <includes>
@@ -1691,7 +1693,7 @@ src/main/profiles/prod
                           </includes>
                           <filtering>true</filtering>
                       </resource>
-
+    
                   </resources>
 
 
@@ -1714,7 +1716,7 @@ src/main/profiles/prod
 
 #### 真实环境
 
-```
+  ```
 第一步，oa-organ，oa-auth，oa-flow，三个模块的负责人，此时用的snapshot版本，mvn clean deploy -Pbeta，此时就会用beta环境的东西去打包和部署到私服，给别人去用
 
 第二步，oa-web，要部署beta的tomcat，此时依赖的还是各个工程的snapshot版本，此时各个工程的最新的snapshot版本对应的Jar包里面就都是beta环境的配置文件了
@@ -1730,7 +1732,7 @@ src/main/profiles/prod
 
 
 
-```Xml
+​```Xml
 <!-- 自动化部署远程Tomcat插件 -->
 			<plugin>
 				<groupId>org.codehaus.cargo</groupId>
