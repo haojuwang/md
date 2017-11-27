@@ -1085,7 +1085,7 @@ maven 内置就会绑定一些插件的goal到phase上，如何手动将插件�
 
 将source插件的jar-no-fork goal 绑定到verif  phase,在完成集成测试之后，就生成源码的jar包
 
- ```
+ ```Xml
  
     <build>
         <plugins>
@@ -1314,12 +1314,564 @@ mvn cobertura:cobertura
 
 
 
-​            -2            -1
-
- 8          9          10          11     12 
-
-​           7200     3600        0
-
-​           120       60           0
 
 
+## 第三十二讲 jetty 插件使用
+
+#### pom 加入jetty插件配置
+
+```Xml
+<plugin>
+	<groupId>org.mortbay.jetty</groupId>
+	<artifactId>jetty-maven-plugin</artifactId>
+	<version>7.1.6.v20100715</version>
+	<configuration>
+		<scanIntervalSeconds>10</scanIntervalSeconds>
+		<webAppConfig>
+			<contextPath>/test</contextPath>
+		</webAppConfig>
+	</configuration>
+</plugin>
+```
+
+
+
+* scanIntervalSeconds 指的是自动扫描项目代码变更的时间
+* contextPath 部署之后的contextPath
+
+Jetty 插件的groupId 不是默认的org.apache.maven.plugins，因此如果要执行该插件，需要在settings.xml 中进行配置：
+
+```
+<pluginGroups>
+	<pluginGroup>org.mortbay.jetty</pluginGroup>
+</pluginGroups>
+```
+
+
+
+```
+settings.xml文件里，有一个东西叫做pluginGroups
+
+就是我们一般如果配置了插件后，然后如果我们就直接在命令行运行jetty:run cobertura:cobertura命令，其实用的是插件缩写，jetty 插件 cobertura插件，但是如果要将插件的缩写和插件自己的groupId对应起来的话有的时候还是需要你手动配置一下的，不然在某些环境下可能直接运行类似jetty:run的命令可能会有问题
+```
+
+
+
+* 运行命令
+
+  ```
+  mvn jetty:run
+  ```
+
+  默认端口是8080
+
+* mvn jetty:run -Djetty.port=8081可以修改端口号
+
+
+
+
+
+## 第三十三讲 cargo插件 发布war
+
+#### tomcat设置tomcat-user.xml
+
+```Xml
+<role rolename="manager"/>
+<role rolename="manager-gui"/>
+<role rolename="admin"/>
+<role rolename="manager-script"/>
+<role rolename="manager-jmx"/>
+<role rolename="manager-status"/>
+<role rolename="admin-gui"/>
+
+<user username="admin" password="admin" roles="admin,manager,manager-gui,manager-script,manager-jmx,manager-status,admin-gui"/>
+
+```
+
+
+
+```Xml
+如无新建conf/Catalina/localhost/manager.xml 内容如下：
+<Context privileged="true" antiResourceLocking="false"
+         docBase="${catalina.home}/webapps/manager">
+    <Valve className="org.apache.catalina.valves.RemoteAddrValve" allow="^.*$" />
+</Context>
+```
+
+
+
+#### 中文乱码
+
+* 修改tomcat的conf/server.xml，里面在8080那个地方，加入两个配置，URIEncoding="UTF-8" useBodyEncodingForURI="true"
+
+* web.xml
+
+  ```Xml
+
+    <!-- 字符集编码过滤器 -->
+    <filter>
+      <filter-name>encodingFilter</filter-name>
+      <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+      <init-param>
+        <param-name>encoding</param-name>
+        <param-value>utf-8</param-value>
+      </init-param>
+      <init-param>
+        <param-name>forceEncoding</param-name>
+        <param-value>true</param-value>
+      </init-param>
+    </filter>
+    <filter-mapping>
+      <filter-name>encodingFilter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+  ```
+
+  ​
+
+#### cargo插件使用 基于tomcat8
+
+* 1，settings.xml
+
+  ```
+  <pluginGroup>org.codehaus.cargo</pluginGroup>
+  ```
+
+* 2,生成war
+
+  ```
+  运行mvn clean package命令，打包，必须先有一个war包
+  ```
+
+* 3,Pom.xml
+
+  ```Xml
+     <!-- 自动化部署远程Tomcat插件 -->
+              <plugin>
+                  <groupId>org.codehaus.cargo</groupId>
+                  <artifactId>cargo-maven2-plugin</artifactId>
+                  <version>1.4.13</version>
+                  <configuration>
+                      <container>
+                          <containerId>tomcat8x</containerId>
+                          <type>remote</type>
+                      </container>
+                      <configuration>
+                          <type>runtime</type>
+                          <properties>
+                              <cargo.remote.username>admin</cargo.remote.username>
+                              <cargo.remote.password>admin</cargo.remote.password>
+                              <cargo.tomcat.manager.url>http://10.211.55.3:7070/manager</cargo.tomcat.manager.url>
+                              <cargo.servlet.port>7070</cargo.servlet.port>
+                              <cargo.hostname>10.211.55.3</cargo.hostname>
+                              <cargo.tomcat.ajp.port>8009</cargo.tomcat.ajp.port>
+                          </properties>
+
+
+
+                      </configuration>
+                  </configuration>
+              </plugin>
+
+  ```
+
+  ​
+
+* 4,执行命令
+
+  ```
+   mvn cargo:deploy 
+  ```
+
+  ​
+
+* 5，重新部署
+
+  ```
+  mvn cargo:redeploy
+  ```
+
+  ​
+
+
+
+## 第三十四讲  profile 自动适配环境修改配置文件
+
+
+
+#### 常见的开发环境
+
+```
+dev:即本地开发和测试环境，这个就是指的是我们项目本地的笔记本电脑，在上面可以进行开发，单元测试，冒烟测试。比如说你的local本地环境需要有一些基础性的依赖设施，比如说数据库，比如说MQ，比如说redis。这些东西，mysql、rabbit mq、redis，都是部署在公司的一套公共的一个dev环境，有一套服务器，上面会部署各种项目组成员在本地开发，需要的各种依赖设施。保证你在本地开发的时候，指定对应的地址，都是可以连通，笔记本电脑连通的。
+
+```
+
+
+
+```
+beta: beata 一般称作内部测试环境，也就是不对外。集成测试/联调测试的环境，一般自己感觉开发好了之后，就需要将自己的系统部署到一个集成测试环境，说白了就是一个项目都是多个研发人员搞得，每个人弄好了自己的部分，都要发布到一个环境，大家在上面测一测整个系统多个服务能不能串起来跑的通，至少别报错，这一块主要是确保主流程要跑通，不要报错
+```
+
+
+
+```
+test:QA 测试环境，正经项目，都会有专门的测试人员，如果没有的话，那研发人员自己充当QA角色了，就是需要将通过集成测试的代码，部署到QA测试环境，然后由QA人员进行非常充分而且完善的测试，验证功能性能，等各个方面都没有问题
+```
+
+
+
+```
+staging： 预发布环境，通常这个环境会跟生产环境保持基本一致，部署到上面后，就会使用部分真实的流量或者数据，来让系统运行。比如对外提供服务的网站，app之类的，可以通过流量拷贝的方式，拷贝一小部分流量过来，在staging环境让开发好的系统跑一跑。后者也可以拷贝部分真实的线上数据库的数据下来，跑一跑。然后这个环节QA还是会介入，再次验证一下看系统是否运行正常。同时这个环节，有一个验收的作用，项目如果有产品经理，此时会在这个环节看一下是否符合他的产品预期。
+```
+
+
+
+```
+prod: 生产环境，最终系统部署到线上生产环境中，完成上线
+```
+
+
+
+每个环境，都有完全隔离开来，都有自己的数据库，mq,缓存等等各种各样的依赖，比如数据库把，使用的肯定也是不同的数据库。
+
+
+
+dev环境下，通常是用的开发人员自己本地安装的一个数据库，或者是用公司测试环境中专门用于开发的一个公共测试数据库；dev环境下，有一个专门的集成测试数据；test环境下，有一个专门的QA 测试数据库；staging环境下，有一个专门的预发环境数据库；prod环境下，就是线上的生产环境数据库。
+
+
+
+
+
+
+
+
+
+
+
+#### 基于资源过滤+profile的方式适配各个环境
+
+比如resources下的jdbc.properties
+
+* 替换文件标签
+
+  ```
+  jdbc.url = ${jdbc.url}
+  jdbc.driver = ${jdbc.driver}
+  jdbc.username= ${jdbc.username}
+  jdbc.password=${jdbc.password}
+  ```
+
+  ​
+
+* Pom.xml 配置 在project 标签结束之前
+
+  ```Xml
+
+      <profiles>
+          <profile>
+              <id>local</id>
+              <activation>
+                  <activeByDefault>true</activeByDefault>
+              </activation>
+              <properties>
+                  <jdbc.driver>com.mysql.jdbc.Driver</jdbc.driver>
+                  <jdbc.url>jdbc:mysql://localhost:3306/arch1?useUnicode=true&amp;characterEncoding=UTF-8</jdbc.url>
+                  <jdbc.username>root</jdbc.username>
+                  <jdbc.password></jdbc.password>
+              </properties>
+          </profile>
+          <profile>
+              <id>dev</id>
+              <properties>
+                  <jdbc.driver>com.mysql.jdbc.Driver</jdbc.driver>
+                  <jdbc.url>jdbc:mysql://45.76.97.203:3306/oa?useUnicode=true&amp;characterEncoding=UTF-8</jdbc.url>
+                  <jdbc.username>root</jdbc.username>
+                  <jdbc.password>lihao123</jdbc.password>
+              </properties>
+          </profile>
+      </profiles>
+  ```
+
+  ​
+
+* 执行测试命令
+
+  ```
+   mvn clean process-resources -Pdev
+  ```
+
+  在target/classes下面可以看到被替换的文件
+
+* 打包时替换
+
+  ```
+  mvn clean package -Pdev，-P就是说激活dev profile
+  ```
+
+  ​
+
+  ​
+
+* 默认激活
+
+  ```Xml
+   <activation>
+                  <activeByDefault>true</activeByDefault>
+              </activation>
+  ```
+
+  ​
+
+* 查看默认激活
+
+  ```
+  mvn help:active-profiles
+  ```
+
+
+
+
+
+#### 目录替换
+
+```
+在大型的工程里面，配置文件特别多，你不可能把所有的配置都放profiles里面，那个有点乱，一般是怎么做呢？src/main/resources下面直接就不放东西了，实际上是profile里面定义一个单属于自己的环境的一套配置文件对应的目录，然后在处理文件的时候，会把激活的profile对应的一套目录里的资源文件拷贝到src/main/resources下面去，给工程打包使用。
+
+再多创建几个目录
+src/main/profiles/dev
+src/main/profiles/beta
+src/main/profiles/test
+src/main/profiles/staging
+src/main/profiles/prod
+```
+
+
+
+* pom.xml设置
+
+  ```Xml
+   <profiles>
+          <profile>
+              <id>local</id>
+              <activation>
+                  <activeByDefault>true</activeByDefault>
+              </activation>
+              <build>
+                  <resources>
+
+                      <resource>
+                          <directory>src/main/profiles/local</directory>
+                          <includes>
+                              <include>**/*.xml</include>
+                              <include>**/*.properties</include>
+                          </includes>
+                          <filtering>true</filtering>
+                      </resource>
+
+                  </resources>
+
+
+              </build>
+          </profile>
+
+          <profile>
+              <id>dev</id>
+              <build>
+                  <resources>
+
+                      <resource>
+                          <directory>src/main/profiles/dev</directory>
+                          <includes>
+                              <include>**/*.xml</include>
+                              <include>**/*.properties</include>
+                          </includes>
+                          <filtering>true</filtering>
+                      </resource>
+
+                  </resources>
+
+
+              </build>
+          </profile>
+
+
+      </profiles>
+  ```
+
+  ​
+
+* 运行命令
+
+  ```
+  mvn process-resources -Pdev
+  ```
+
+  ​
+
+#### 真实环境
+
+```
+第一步，oa-organ，oa-auth，oa-flow，三个模块的负责人，此时用的snapshot版本，mvn clean deploy -Pbeta，此时就会用beta环境的东西去打包和部署到私服，给别人去用
+
+第二步，oa-web，要部署beta的tomcat，此时依赖的还是各个工程的snapshot版本，此时各个工程的最新的snapshot版本对应的Jar包里面就都是beta环境的配置文件了
+
+第三步，oa-web，cargo发布到哪个环境的配置，也是可以用profiles下面的properties来进行占位符替换的，每个profile定义一个properties，里面包含自己的环境对应的tomcat地址，然后在cargo插件的配置里面，用占位符来引用即可。
+
+第四步，oa-web，打一个war包，此时也是mvn clean package -Pbeta，用beta环境的配置打成war包，而且此时用的都是另外三个模块的beta环境下的jar包，打在他自己的war包里面
+
+第五步，oa-web，用cargo，mvn cargo:redeploy -Pbeta，此时就可以进行beta环境的部署
+
+第六步，大家在各个环境如法炮制全都测试完了，此时呢就会上线。各个依赖模块，用mvn clean deploy -Pprod，去打一个prod环境的jar包，部署到私服；oa-web，打出来一个war包，此时打包的时候，用的都是各个依赖最新的prod环境的jar包，接着就使用mvn cargo:redeploy -Pprod，此时就会发布到prod环境对应的tomcat地址上去。
+```
+
+
+
+```Xml
+<!-- 自动化部署远程Tomcat插件 -->
+			<plugin>
+				<groupId>org.codehaus.cargo</groupId>
+				<artifactId>cargo-maven2-plugin</artifactId>
+				<version>1.0</version>
+				<configuration>
+					<container>
+						<containerId>tomcat6x</containerId>
+						<type>remote</type>
+					</container>
+					<configuration>
+						<type>runtime</type>
+						<properties>
+							<cargo.remote.username>${prop.cargo.remote.username}</cargo.remote.username>
+							<cargo.remote.password>${prop.cargo.remote.password}</cargo.remote.password>
+							<cargo.tomcat.manager.url>${prop.cargo.tomcat.manager.url}</cargo.tomcat.manager.url>
+							<cargo.servlet.port>${prop.cargo.servlet.port}</cargo.servlet.port>
+						</properties>
+					</configuration>
+				</configuration>
+			</plugin>
+
+------------------------------------------------------------------------------------------
+
+<profiles>
+		<profile>
+			<id>dev</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<prop.cargo.remote.username>admin</prop.cargo.remote.username>
+				<prop.cargo.remote.password>admin</prop.cargo.remote.password>
+				<prop.cargo.tomcat.manager.url>http://localhost:8080/manager</prop.cargo.tomcat.manager.url>
+				<prop.cargo.servlet.port>8080</prop.cargo.servlet.port>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>beta</id>
+			<properties>
+				<prop.cargo.remote.username>admin-beta</prop.cargo.remote.username>
+				<prop.cargo.remote.password>admin-beta</prop.cargo.remote.password>
+				<prop.cargo.tomcat.manager.url>http://localhost:8080/manager-beta</prop.cargo.tomcat.manager.url>
+				<prop.cargo.servlet.port>8080</prop.cargo.servlet.port>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>test</id>
+			<properties>
+				<prop.cargo.remote.username>admin-test</prop.cargo.remote.username>
+				<prop.cargo.remote.password>admin-test</prop.cargo.remote.password>
+				<prop.cargo.tomcat.manager.url>http://localhost:8080/manager-test</prop.cargo.tomcat.manager.url>
+				<prop.cargo.servlet.port>8080</prop.cargo.servlet.port>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>staging</id>
+			<properties>
+				<prop.cargo.remote.username>admin-staging</prop.cargo.remote.username>
+				<prop.cargo.remote.password>admin-staging</prop.cargo.remote.password>
+				<prop.cargo.tomcat.manager.url>http://localhost:8080/manager-staging</prop.cargo.tomcat.manager.url>
+				<prop.cargo.servlet.port>8080</prop.cargo.servlet.port>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>prod</id>
+			<properties>
+				<prop.cargo.remote.username>admin-prod</prop.cargo.remote.username>
+				<prop.cargo.remote.password>admin-prod</prop.cargo.remote.password>
+				<prop.cargo.tomcat.manager.url>http://localhost:8080/manager-prod</prop.cargo.tomcat.manager.url>
+				<prop.cargo.servlet.port>8080</prop.cargo.servlet.port>
+			</properties>
+		</profile>
+	</profiles>
+```
+
+
+
+
+
+## 常用插件
+
+### 1,shade 设置运行主类 并打包相关的依赖
+
+
+
+* 插件设置
+
+```Xml
+<!--设置主类-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <manifestEntries>
+                                <Main-Class>${app.main.class}</Main-Class>
+
+                            </manifestEntries>
+                        </transformer>
+                    </transformers>
+
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+```
+
+* profile
+
+```Xml
+  <profiles>
+        <profile>
+            <id>main</id>
+            <properties>
+                <app.main.class>com.oa.illness.Main</app.main.class>
+            </properties>
+
+        </profile>
+    </profiles>
+```
+
+
+
+* 命令
+
+  ```
+  mvn clean package -Pmain     
+
+  java -jar  target/oa_illness-1.0-SNAPSHOT.jar
+
+  ```
+
+  ​
+
+  ​
