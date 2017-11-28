@@ -1467,35 +1467,24 @@ settings.xml文件里，有一个东西叫做pluginGroups
                               <cargo.hostname>10.211.55.3</cargo.hostname>
                               <cargo.tomcat.ajp.port>8009</cargo.tomcat.ajp.port>
                           </properties>
-<<<<<<< HEAD
+
                             </configuration>
                 </configuration>
             </plugin>
-=======
->>>>>>> 9f386cc9a0fec5dd5e89a03a3d4ae349d278bc1a
   ```
 
-
-
-
 * 4,执行命令
-
  ```
- mvn cargo:deploy 
+mvn cargo:deploy 
  ```
 
 * 5，重新部署
 
-```
+ ```
  mvn cargo:redeploy
-```
-
  
-
-
-
-
-
+  mvn cargo:redeploy
+ ```
 
 
 ## 第三十四讲  profile 自动适配环境修改配置文件
@@ -1504,33 +1493,31 @@ settings.xml文件里，有一个东西叫做pluginGroups
 
 #### 常见的开发环境
 
-  ```
+
+
+```
 dev:即本地开发和测试环境，这个就是指的是我们项目本地的笔记本电脑，在上面可以进行开发，单元测试，冒烟测试。比如说你的local本地环境需要有一些基础性的依赖设施，比如说数据库，比如说MQ，比如说redis。这些东西，mysql、rabbit mq、redis，都是部署在公司的一套公共的一个dev环境，有一套服务器，上面会部署各种项目组成员在本地开发，需要的各种依赖设施。保证你在本地开发的时候，指定对应的地址，都是可以连通，笔记本电脑连通的。
 
 ```
 
 
-
 ```
-
 beta: beata 一般称作内部测试环境，也就是不对外。集成测试/联调测试的环境，一般自己感觉开发好了之后，就需要将自己的系统部署到一个集成测试环境，说白了就是一个项目都是多个研发人员搞得，每个人弄好了自己的部分，都要发布到一个环境，大家在上面测一测整个系统多个服务能不能串起来跑的通，至少别报错，这一块主要是确保主流程要跑通，不要报错。
 ```
 
-```
-test:QA 测试环境，正经项目，都会有专门的测试人员，如果没有的话，那研发人员自己充当QA角色了，就是需要将通过集成测试的代码，部署到QA测试环境，然后由QA人员进行非常充分而且完善的测试，验证功能性能，等各个方面都没有问题
 
 ```
+test:QA 测试环境，正经项目，都会有专门的测试人员，如果没有的话，那研发人员自己充当QA角色了，就是需要将通过集成测试的代码，部署到QA测试环境，然后由QA人员进行非常充分而且完善的测试，验证功能性能，等各个方面都没有问题
+```
+
 
 ```
 staging： 预发布环境，通常这个环境会跟生产环境保持基本一致，部署到上面后，就会使用部分真实的流量或者数据，来让系统运行。比如对外提供服务的网站，app之类的，可以通过流量拷贝的方式，拷贝一小部分流量过来，在staging环境让开发好的系统跑一跑。后者也可以拷贝部分真实的线上数据库的数据下来，跑一跑。然后这个环节QA还是会介入，再次验证一下看系统是否运行正常。同时这个环节，有一个验收的作用，项目如果有产品经理，此时会在这个环节看一下是否符合他的产品预期。
-
 ```
+
 
 ```
 prod: 生产环境，最终系统部署到线上生产环境中，完成上线
-
-```
-
 ```
 
 
@@ -1542,12 +1529,6 @@ prod: 生产环境，最终系统部署到线上生产环境中，完成上线
 dev环境下，通常是用的开发人员自己本地安装的一个数据库，或者是用公司测试环境中专门用于开发的一个公共测试数据库；dev环境下，有一个专门的集成测试数据；test环境下，有一个专门的QA 测试数据库；staging环境下，有一个专门的预发环境数据库；prod环境下，就是线上的生产环境数据库。
 
 
-```
-
-
-
-
-
 
 #### 基于资源过滤+profile的方式适配各个环境
 
@@ -1556,12 +1537,8 @@ dev环境下，通常是用的开发人员自己本地安装的一个数据库�
 * 替换文件标签
 
 ```
-<<<<<<< HEAD
- jdbc.url = ${jdbc.url}
-
-=======
   jdbc.url = ${jdbc.url}
->>>>>>> 9f386cc9a0fec5dd5e89a03a3d4ae349d278bc1a
+
   jdbc.driver = ${jdbc.driver}
 
   jdbc.username= ${jdbc.username}
@@ -1572,11 +1549,9 @@ dev环境下，通常是用的开发人员自己本地安装的一个数据库�
 
 
 
-
-
 * Pom.xml 配置 在project 标签结束之前
 
-  ```xml
+```xml
 
       <profiles>
           <profile>
@@ -1601,7 +1576,7 @@ dev环境下，通常是用的开发人员自己本地安装的一个数据库�
               </properties>
           </profile>
       </profiles>
-  ```
+```
 
   ​
 
@@ -1680,7 +1655,7 @@ src/main/profiles/prod
                       </resource>
 
                   </resources>
-<<<<<<< HEAD
+
                  </build>
         </profile>
 
@@ -1701,35 +1676,29 @@ src/main/profiles/prod
                 </resources>
                </build>
         </profile>
-    </profiles>           
+    </profiles>   
+    </build>
+        </profile>
+
+        <profile>
+            <id>dev</id>
+            <build>
+                <resources>
+
+                    <resource>
+                        <directory>src/main/profiles/dev</directory>
+                        <includes>
+                            <include>**/*.xml</include>
+                            <include>**/*.properties</include>
+                        </includes>
+                        <filtering>true</filtering>
+                    </resource>
+
+                </resources>
+                 </build>
+        </profile>
   ```
-=======
-  ```
 
-
-              </build>
-          </profile>
-    
-          <profile>
-              <id>dev</id>
-              <build>
-                  <resources>
-    
-                      <resource>
-                          <directory>src/main/profiles/dev</directory>
-                          <includes>
-                              <include>**/*.xml</include>
-                              <include>**/*.properties</include>
-                          </includes>
-                          <filtering>true</filtering>
-                      </resource>
-    
-                  </resources>
-
-
-              </build>
-          </profile>
->>>>>>> 9f386cc9a0fec5dd5e89a03a3d4ae349d278bc1a
 
 
 
@@ -1737,16 +1706,16 @@ src/main/profiles/prod
 * 运行命令
 
   ```
-
-mvn process-resources -Pdev
-
+  mvn process-resources -Pdev
   ```
+
+
+
+
+
 #### 真实环境
 
-<<<<<<< HEAD
-=======
-  ```
->>>>>>> 9f386cc9a0fec5dd5e89a03a3d4ae349d278bc1a
+
 第一步，oa-organ，oa-auth，oa-flow，三个模块的负责人，此时用的snapshot版本，mvn clean deploy -Pbeta，此时就会用beta环境的东西去打包和部署到私服，给别人去用
 
 第二步，oa-web，要部署beta的tomcat，此时依赖的还是各个工程的snapshot版本，此时各个工程的最新的snapshot版本对应的Jar包里面就都是beta环境的配置文件了
@@ -1760,10 +1729,6 @@ mvn process-resources -Pdev
 第六步，大家在各个环境如法炮制全都测试完了，此时呢就会上线。各个依赖模块，用mvn clean deploy -Pprod，去打一个prod环境的jar包，部署到私服；oa-web，打出来一个war包，此时打包的时候，用的都是各个依赖最新的prod环境的jar包，接着就使用mvn cargo:redeploy -Pprod，此时就会发布到prod环境对应的tomcat地址上去。
 ```xml
 
-<<<<<<< HEAD
-=======
-​```Xml
->>>>>>> 9f386cc9a0fec5dd5e89a03a3d4ae349d278bc1a
 <!-- 自动化部署远程Tomcat插件 -->
 			<plugin>
 				<groupId>org.codehaus.cargo</groupId>
