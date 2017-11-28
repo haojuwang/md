@@ -150,6 +150,23 @@ https://www.elastic.co/guide/en/logstash/5.6/running-logstash.html#running-logst
 4,conf.d 下面写logstash
 5，initctl start logstash
 
+---------------------------------------------------
+
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+echo '[logstash-5.x]
+name=Elastic repository for 5.x packages
+baseurl=https://artifacts.elastic.co/packages/5.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md' >/etc/yum.repos.d/logstash.repo
+
+yum -y install logstash
+
+yum -y install java-1.8.0-openjdk*
+
 
 
 
@@ -174,7 +191,7 @@ http://admin.ln12320.cn/9200/?auth_user=elastic&auth_password=leyue100@!
 
 http://elastic:leyue100@!@admin.ln12320.cn/9200/
 
- url = git@github.com:haojuwang/md.git
+
 
 
 ## kibana
