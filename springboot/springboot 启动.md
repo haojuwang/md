@@ -549,23 +549,19 @@ jsp自定义错误页面不能覆盖spring boot 默认的错误页面
           model.addAttribute("title","index");
           return "index";
       }
-
-
       @RequestMapping("thymeleaf")
-      public String thymeleaf(Model model) {
-          model.addAttribute("title","thymeleaf");
-          return "thymeleaf";
+    public String thymeleaf(Model model) {
+        model.addAttribute("title","thymeleaf");
+        return "thymeleaf";
+    }
       }
-
-  }
-
   ```
 
-  ​
 
 3，模板thymeleaf.html
 
-```Html
+  ```html
+
 <!DOCTYPE html>
 <html>
 <head lang="en">
@@ -591,8 +587,7 @@ jsp自定义错误页面不能覆盖spring boot 默认的错误页面
 	</script>
 </body>
 </html>
-
-```
+  ```
 
 
 
@@ -741,32 +736,32 @@ public class ErrorExceptionHandler {
   		System.out.println("servlet get method");
   		doPost(request, response);
   	}
+    
+    	@Override
 
+    	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 
+    			throws ServletException, IOException {
 
-  	@Override
-  	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-  			throws ServletException, IOException {
-  		System.out.println("servlet post method");
-  		response.getWriter().write("hello world");
-  	}
+    		System.out.println("servlet post method");
 
-  }
+    		response.getWriter().write("hello world");
 
+    	}
 
-
+    }
 
   ```
 
-​			
 
 
+  
+
+* CustomFilter.java	
 
 
+  ```java
 
-* CustomFilter.java		
-
-  ```Java
   /**
    * 自定义filter
    * 
@@ -791,7 +786,6 @@ public class ErrorExceptionHandler {
   	}
 
   }
-
   ```
 
 * CustomListener.java
@@ -819,7 +813,7 @@ public class ErrorExceptionHandler {
 
   ​
 
-​	
+  ​
 
 #### 1.通过注册 ServletRegistrationBean、 FilterRegistrationBean 和 ServletListenerRegistrationBean 获得控制
 
@@ -897,17 +891,14 @@ public class WebApplication implements ServletContextInitializer {
   @Configuration
   @ComponentScan(basePackages = "com.leyue.boot.web")
   @MapperScan(basePackages = "com.leyue.boot.web.mapper",annotationClass = Mapper.class)
-  public class WebApplication {
-
-      
-
-  }
-
+  public class WebApplication {  }
   ```
 
-  ​
 
-  ```Java
+
+
+  ```java
+
   @WebServlet(name="customServlet",urlPatterns = "/leyue3")
   public class CustomServlet extends HttpServlet {
     
@@ -923,7 +914,7 @@ public class WebApplication implements ServletContextInitializer {
   }
   ```
 
-  ​	
+  	
 
   ```Java
   @WebListener
@@ -931,21 +922,6 @@ public class WebApplication implements ServletContextInitializer {
     
   }
   ```
-
-  ​		
-  ​	
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -996,15 +972,18 @@ public class WebApplication implements ServletContextInitializer {
   @ComponentScan(basePackages = "com.leyue.boot.web")
   @MapperScan(basePackages = "com.leyue.boot.web.mapper",annotationClass = Mapper.class)
   public class WebApplication {
-
-
-  }
-
+      }
   ```
+
+
+
+
+
 
 * 4,Mapper
 
-  ```Xml
+  ```java
+
   @Mapper
   public interface ItemsMapper {
 
@@ -1012,7 +991,6 @@ public class WebApplication implements ServletContextInitializer {
       @Result(javaType = Items.class)
       Items selectByPrimaryKey(int id);
   }
-
   ```
 
   ​
@@ -1035,16 +1013,18 @@ public class WebApplication implements ServletContextInitializer {
   @Configuration
   @ComponentScan(basePackages = "com.leyue.boot.web")
   @MapperScan(basePackages = "com.leyue.boot.web.mapper",annotationClass = Mapper.class)
-  public class WebApplication {
-
-
-  }
-
+  public class WebApplication {}
   ```
+
+
+  
+
+
 
 * 3,UserMapper
 
-  ```Java
+  ```java
+
   @Mapper
   public interface UserMapper {
 
@@ -1068,6 +1048,435 @@ public class WebApplication implements ServletContextInitializer {
   ```
 
   ​
+
+
+
+
+## 跨域问题
+
+* Web 开发经常会遇到跨域问题,解决方案有:jsonp,iframe,CORS 等等
+
+* CORS 与 JSONP 相比
+  1、 JSONP 只能实现 GET 请求,而 CORS 支持所有类型的 HTTP 请求。
+  2、 使用 CORS,开发者可以使用普通的 XMLHttpRequest 发起请求和获得数据,比起 JSONP 有更好的 错误处理。
+  3、 JSONP 主要被老的浏览器支持,它们往往不支持 CORS,而绝大多数现代浏览器都已经支持了 CORS
+
+* 在 spring MVC 中可以配置全局的规则,也可以使用@CrossOrigin 注解进行细粒度的配置
+
+* ​
+
+
+  ​	
+
+#### 全局配置
+
+```java
+@Configuration
+public class CustomCorsConfiguration {
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurerAdapter() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/api/**").allowedOrigins("http://localhost:8080");
+            }
+        };
+    }
+}
+```
+
+第二种方式：
+
+```java
+@Configuration
+public class CustomCorsConfiguration2 extends WebMvcConfigurerAdapter {
+￼  @Override
+  public void addCorsMappings(CorsRegistry registry) {
+     registry.addMapping("/api/**").allowedOrigins("http://localhost:8080");
+  }
+}
+
+```
+
+
+
+
+
+#### 在方法上面注解配置
+
+```
+@CrossOrigin(origins = "http://localhost:8080")
+```
+
+
+
+## 文件上传
+
+
+
+* 1.html
+
+  ```html
+  <!DOCTYPE html>
+  <html>
+  <head lang="en">
+      <title>Spring Boot Demo - FreeMarker</title>
+
+  </head>
+  <body>
+
+  <form method="POST" enctype="multipart/form-data" action="/file/upload">
+      文件:<input type="file" name="files"/>
+
+
+      <input type="submit" value="上传"/>
+  </form>
+
+
+
+
+  </body>
+  </html>
+
+  ```
+
+  ​
+
+2,FileController.java
+
+```java
+@Controller
+@RequestMapping("file")
+public class FileController {
+
+    private static final Logger logger = LoggerFactory.getLogger(FileController.class);
+
+
+    @RequestMapping(value = "upload")
+    @ResponseBody
+    public String upload(@RequestParam("files") MultipartFile file) {
+        if (file.isEmpty()) {
+            return "文件为空";
+        }
+
+        //获取文件名
+        String fileName = file.getOriginalFilename();
+        logger.info("上传文件名：" + fileName);
+
+
+        //获取到后缀名
+        String sffixName = fileName.substring(fileName.lastIndexOf("."));
+        logger.info("上传的后缀名为： " + sffixName);
+
+
+        //上传文件路径
+        String filePath = "/Users/lihao/project/springboot/web/src/main/resources/static/images/upload/";
+
+        //解决中文问题,liunx 下中文路径,图片显示问题
+        // fileName = UUID.randomUUID() + suffixName;
+
+        File dest = new File(filePath + fileName);
+
+        //检测是否存在目录
+        if (!dest.getParentFile().exists()) {
+            try {
+                FileUtils.forceMkdir(dest.getParentFile());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        logger.info("上传文件路径：" + dest.getAbsolutePath());
+
+        try {
+            file.transferTo(dest);
+            return "上传成功";
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return "上传失败";
+    }
+
+
+    @RequestMapping("show")
+    public String show() {
+        return "upload/upload";
+    }
+
+}
+
+```
+
+
+
+
+
+
+
+
+
+3,properties 配置
+
+```
+spring.http.multipart.enabled=true #默认支持文件上传. 
+
+spring.http.multipart.file-size-threshold=0 #支持文件写入磁盘. 
+
+spring.http.multipart.location= # 上传文件的临时目录 
+
+spring.http.multipart.max-file-size=1Mb # 最大支持文件大小 
+
+spring.http.multipart.max-request-size=10Mb # 最大支持请求大小
+```
+
+
+
+
+
+
+
+## spring-data-jpa
+
+http://docs.spring.io/spring-data/jpa/docs/1.10.2.RELEASE/reference/html/
+
+
+​	
+
+* 1,加载依赖
+
+  ```xml
+       <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-data-jpa</artifactId>
+          </dependency>
+          
+             <dependency>
+              <groupId>mysql</groupId>
+              <artifactId>mysql-connector-java</artifactId>
+              <version>5.1.29</version>
+          </dependency>
+  ```
+
+  ​
+
+
+
+* 2,application
+
+  ```
+  #jpa
+  spring.jpa.hibernate.ddl-auto=update
+
+  #显示sql 语句
+  spring.jpa.show-sql=true
+  ```
+
+  ​
+
+* 3,bean
+
+  ```java
+  import javax.persistence.Column;
+  import javax.persistence.Entity;
+  import javax.persistence.GeneratedValue;
+  import javax.persistence.Id;
+  import java.sql.Date;
+
+  @Entity(name="items")
+  public class Items {
+
+      @Id
+      @GeneratedValue
+      private int id;
+
+      @Column
+      private String name;
+
+      @Column
+      private double price;
+
+      @Column
+      private String detail;
+
+      @Column
+      private String pic;
+
+      @Column
+      private Date createtime;
+
+
+      public int getId() {
+          return id;
+      }
+
+      public void setId(int id) {
+          this.id = id;
+      }
+
+      public String getName() {
+          return name;
+      }
+
+      public void setName(String name) {
+          this.name = name;
+      }
+
+      public double getPrice() {
+          return price;
+      }
+
+      public void setPrice(double price) {
+          this.price = price;
+      }
+
+      public String getDetail() {
+          return detail;
+      }
+
+      public void setDetail(String detail) {
+          this.detail = detail;
+      }
+
+      public String getPic() {
+          return pic;
+      }
+
+      public void setPic(String pic) {
+          this.pic = pic;
+      }
+
+      public Date getCreatetime() {
+          return createtime;
+      }
+
+      public void setCreatetime(Date createtime) {
+          this.createtime = createtime;
+      }
+
+      @Override
+      public String toString() {
+          return "Items{" +
+                  "id=" + id +
+                  ", name='" + name + '\'' +
+                  ", price=" + price +
+                  ", detail='" + detail + '\'' +
+                  ", pic='" + pic + '\'' +
+                  ", createtime=" + createtime +
+                  '}';
+      }
+  }
+
+  ```
+
+  ​
+
+
+
+* 4，定义接口（继承）JpaRepository
+
+```java
+public interface ItemsDao extends JpaRepository<Items,Integer> {
+
+    List<Items> findByName(String s);
+
+    List<Items> findByName(String s, Pageable pageable);
+}
+
+```
+
+
+
+* 5，测试
+
+  ```java
+  @RunWith(SpringRunner.class)
+  @SpringBootTest
+  public class ItemsDaoTest {
+
+      @Autowired
+      private ItemsDao itemsDao;
+
+
+      @Test
+      public void insert() {
+
+          Items entity = new Items();
+          entity.setName("mac");
+          entity.setPrice(3000);
+          entity.setPic("http://xxx.png");
+          entity.setDetail("mac 新款");
+          entity.setCreatetime(new Date(System.currentTimeMillis()));
+
+          itemsDao.save(entity);
+      }
+
+      @Test
+      public void update() {
+          Items entity = new Items();
+          entity.setId(4);
+          entity.setName("联想B460");
+          entity.setCreatetime(new Date(System.currentTimeMillis()));
+          itemsDao.save(entity);
+
+          System.out.println(entity);
+
+      }
+
+
+      @Test
+      public void delete() {
+          itemsDao.delete(4);
+      }
+
+
+      @Test
+      public void select() {
+          Items entity = itemsDao.findOne(1);
+          System.out.println(entity);
+      }
+
+      @Test
+      public void select1() {
+          List<Items> entity = itemsDao.findByName("背包");
+          System.out.println(entity);
+      }
+
+
+      @Test
+      //分页
+      public void queryForPage() {
+          Pageable pageable = new PageRequest(0,2,new Sort(new Sort.Order(Sort.Direction.DESC,"id")));
+          List<Items> reult = itemsDao.findByName("笔记本", pageable);
+          System.out.println(reult);
+      }
+  }
+
+  ```
+
+  ​
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
