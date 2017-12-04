@@ -447,6 +447,25 @@ insert into Author (username,password,email,bio) values (#{username},#{password}
 
 
 
+#### foreach
+
+```Xml
+<if test="idList != null">
+			<!-- AND id IN (#{id},#{id},#{id}) -->
+
+			<!-- collection：表示pojo中集合属性的属性名称 -->
+			<!-- item:为遍历出的结果声明一个变量名称 -->
+			<!-- open：遍历开始时，需要拼接的字符串 -->
+			<!-- close:遍历结束时，需要拼接的字符串 -->
+			<!-- separator：遍历中间需要拼接的连接符 -->
+			AND id IN
+			<foreach collection="idList" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</if>
+```
+
 
 
 
@@ -516,7 +535,7 @@ public class Orders {
 * javaType:  property 对应的java 类型。
 * id 标签：建议在关联查询时必须写，不写不会报错，但是会影响性能。
 
- 
+
 
 
 

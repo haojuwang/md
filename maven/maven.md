@@ -1813,6 +1813,18 @@ src/main/profiles/prod
 
 
 
+## maven 下载源码命令
+
+````
+mvn dependency:sources 
+````
+
+
+
+
+
+
+
 ## 常用插件
 
 ### 1,shade 设置运行主类 并打包相关的依赖
