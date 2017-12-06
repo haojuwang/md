@@ -513,7 +513,6 @@ jsp自定义错误页面不能覆盖spring boot 默认的错误页面
   	</script>
   </body>
   </html>
-
   ```
 
 
@@ -755,7 +754,7 @@ public class ErrorExceptionHandler {
 
 
 
-  
+
 
 * CustomFilter.java	
 
@@ -1127,24 +1126,24 @@ public class CustomCorsConfiguration2 extends WebMvcConfigurerAdapter {
 
   <form method="POST" enctype="multipart/form-data" action="/file/upload">
       文件:<input type="file" name="files"/>
-
-
       <input type="submit" value="上传"/>
-  </form>
+      </form>
 
 
 
+    </body>
 
-  </body>
-  </html>
+    </html>
 
   ```
 
-  ​
 
-2,FileController.java
 
-```java
+
+* 2,FileController.java
+
+  ```java
+
 @Controller
 @RequestMapping("file")
 public class FileController {
@@ -1206,8 +1205,7 @@ public class FileController {
     }
 
 }
-
-```
+  ```
 
 
 
@@ -1277,185 +1275,1168 @@ http://docs.spring.io/spring-data/jpa/docs/1.10.2.RELEASE/reference/html/
 
 * 3,bean
 
-  ```java
-  import javax.persistence.Column;
-  import javax.persistence.Entity;
-  import javax.persistence.GeneratedValue;
-  import javax.persistence.Id;
-  import java.sql.Date;
-
-  @Entity(name="items")
-  public class Items {
-
-      @Id
-      @GeneratedValue
-      private int id;
-
-      @Column
-      private String name;
-
-      @Column
-      private double price;
-
-      @Column
-      private String detail;
-
-      @Column
-      private String pic;
-
-      @Column
-      private Date createtime;
-
-
-      public int getId() {
-          return id;
-      }
-
-      public void setId(int id) {
-          this.id = id;
-      }
-
-      public String getName() {
-          return name;
-      }
-
-      public void setName(String name) {
-          this.name = name;
-      }
-
-      public double getPrice() {
-          return price;
-      }
-
-      public void setPrice(double price) {
-          this.price = price;
-      }
-
-      public String getDetail() {
-          return detail;
-      }
-
-      public void setDetail(String detail) {
-          this.detail = detail;
-      }
-
-      public String getPic() {
-          return pic;
-      }
-
-      public void setPic(String pic) {
-          this.pic = pic;
-      }
-
-      public Date getCreatetime() {
-          return createtime;
-      }
-
-      public void setCreatetime(Date createtime) {
-          this.createtime = createtime;
-      }
-
-      @Override
-      public String toString() {
-          return "Items{" +
-                  "id=" + id +
-                  ", name='" + name + '\'' +
-                  ", price=" + price +
-                  ", detail='" + detail + '\'' +
-                  ", pic='" + pic + '\'' +
-                  ", createtime=" + createtime +
-                  '}';
-      }
-  }
-
-  ```
-
   ​
 
 
+```java
+ import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import java.sql.Date;
 
+@Entity(name="items")
+public class Items {
+
+    @Id
+    @GeneratedValue
+    private int id;
+
+    @Column
+    private String name;
+
+    @Column
+    private double price;
+
+    @Column
+    private String detail;
+
+    @Column
+    private String pic;
+
+    @Column
+    private Date createtime;
+ 
+ public int getId() {
+      return id;
+  }
+
+  public void setId(int id) {
+      this.id = id;
+  }
+
+  public String getName() {
+      return name;
+  }
+
+  public void setName(String name) {
+      this.name = name;
+  }
+
+  public double getPrice() {
+      return price;
+  }
+
+  public void setPrice(double price) {
+      this.price = price;
+  }
+
+  public String getDetail() {
+      return detail;
+  }
+
+  public void setDetail(String detail) {
+      this.detail = detail;
+  }
+
+  public String getPic() {
+      return pic;
+  }
+
+  public void setPic(String pic) {
+      this.pic = pic;
+  }
+
+  public Date getCreatetime() {
+      return createtime;
+  }
+
+  public void setCreatetime(Date createtime) {
+      this.createtime = createtime;
+  }
+
+  @Override
+  public String toString() {
+      return "Items{" +
+              "id=" + id +
+              ", name='" + name + '\'' +
+              ", price=" + price +
+              ", detail='" + detail + '\'' +
+              ", pic='" + pic + '\'' +
+              ", createtime=" + createtime +
+              '}';
+  }
+  }
+```
 * 4，定义接口（继承）JpaRepository
 
-```java
+  ```java
+
 public interface ItemsDao extends JpaRepository<Items,Integer> {
 
     List<Items> findByName(String s);
 
     List<Items> findByName(String s, Pageable pageable);
 }
-
-```
+  ```
 
 
 
 * 5，测试
 
+  ​
+
+
+```java
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class ItemsDaoTest {
+
+    @Autowired
+    private ItemsDao itemsDao;
+@Test
+  public void insert() {
+
+      Items entity = new Items();
+      entity.setName("mac");
+      entity.setPrice(3000);
+      entity.setPic("http://xxx.png");
+      entity.setDetail("mac 新款");
+      entity.setCreatetime(new Date(System.currentTimeMillis()));
+
+      itemsDao.save(entity);
+  }
+
+  @Test
+  public void update() {
+      Items entity = new Items();
+      entity.setId(4);
+      entity.setName("联想B460");
+      entity.setCreatetime(new Date(System.currentTimeMillis()));
+      itemsDao.save(entity);
+
+      System.out.println(entity);
+
+  }
+    @Test
+  public void delete() {
+      itemsDao.delete(4);
+  }
+  
+  @Test
+  public void select() {
+      Items entity = itemsDao.findOne(1);
+      System.out.println(entity);
+  }
+
+  @Test
+  public void select1() {
+      List<Items> entity = itemsDao.findByName("背包");
+      System.out.println(entity);
+  }
+  
+    @Test
+  //分页
+  public void queryForPage() {
+      Pageable pageable = new PageRequest(0,2,new Sort(new Sort.Order(Sort.Direction.DESC,"id")));
+      List<Items> reult = itemsDao.findByName("笔记本", pageable);
+      System.out.println(reult);
+  }
+  
+   }
+```
+
+ 
+
+
+
+
+
+## redis 使用
+
+#### 1，添加依赖
+
+  ```
+
+    <!--redis-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+  ```
+
+
+
+#### 2,配置文件
+
+```
+#redis
+spring.redis.host=localhost
+spring.redis.port=6379
+#spring.redis.password=123456
+#spring.redis.database=0
+#spring.redis.pool.max-active=8
+#spring.redis.pool.max-idle=8
+#spring.redis.pool.max-wait=-1
+#spring.redis.pool.min-idle=0
+#spring.redis.timeout=0
+```
+
+
+
+#### 3，工具类
+
+```java
+@Component
+public class RedisComponent {
+
+
+    @Autowired
+   private JedisConnectionFactory redisConnectionFactory;
+
+    @Autowired
+    protected StringRedisTemplate stringRedisTemplate;
+
+    private final Logger logger = LoggerFactory.getLogger(RedisComponent.class);
+
+    public void set(String key, String value) {
+        //选择库
+        redisConnectionFactory.setDatabase(6);
+
+        ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
+
+
+        if (!stringRedisTemplate.hasKey(key)) {
+            ops.set(key, value);
+            logger.info(key + "  保存成功------");
+        } else {
+            logger.info(key + "  已存在------" + ops.get(key));
+        }
+
+    }
+
+
+    public Object get(String key) {
+        redisConnectionFactory.setDatabase(6);
+
+        return stringRedisTemplate.opsForValue().get(key);
+    }
+}
+```
+
+
+
+* 选择库
+
   ```java
-  @RunWith(SpringRunner.class)
-  @SpringBootTest
-  public class ItemsDaoTest {
+  //选择库
+  redisConnectionFactory.setDatabase(6);
+  ```
 
-      @Autowired
-      private ItemsDao itemsDao;
+  ​
 
 
+
+#### 4,测试
+
+```java
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class RedisTest {
+
+    @Autowired
+   private RedisComponent redisComponent;
+
+    @Test
+    public void set() {
+        redisComponent.set("key1","this key1");
+    }
+}
+```
+
+
+
+* 手动配置
+
+  ​
+
+
+```java
+  @Configuration
+@PropertySource("classpath:redis.properties")
+public class RedisConfig {
+    @Autowired
+    private Environment env;
+  @Bean
+  public JedisConnectionFactory redisConnectionFactory() {
+      JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+      JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory();
+      jedisConnectionFactory.setHostName(env.getProperty("redis.host").trim());
+      jedisConnectionFactory.setPort(Integer.parseInt(env.getProperty("redis.port").trim()));
+      jedisConnectionFactory.setPassword(env.getProperty("redis.password").trim());
+      jedisConnectionFactory.setDatabase(Integer.parseInt(env.getProperty("redis.database").trim()));
+      jedisConnectionFactory.setUsePool(true);
+      jedisConnectionFactory.setPoolConfig(jedisPoolConfig);
+      return jedisConnectionFactory;
+  }
+
+  @Bean
+  public RedisTemplate<String,String> redisTemplate() {
+      RedisTemplate<String, String> redisTemplate = new StringRedisTemplate();
+      redisTemplate.setConnectionFactory(redisConnectionFactory());
+      redisTemplate.afterPropertiesSet();
+
+      System.out.println("------------------------------------redisTemplate");
+      return redisTemplate;
+  }
+  
+    }
+```
+
+
+
+
+## MongoDB 使用
+
+
+
+#### 1，添加依赖
+
+  ```xml
+
+  <!-- mongodb -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+  ```
+
+
+
+#### 2，配置文件
+
+```
+# MONGODB (MongoProperties)
+#spring.data.mongodb.uri=mongodb://10.10.10.6/leyue
+spring.data.mongodb.host=10.10.10.6
+spring.data.mongodb.port=27017
+spring.data.mongodb.database=leyue
+#spring.data.mongodb.authentication-database=
+#spring.data.mongodb.database=test
+#spring.data.mongodb.field-naming-strategy=
+#spring.data.mongodb.grid-fs-database=
+#spring.data.mongodb.host=localhost
+#spring.data.mongodb.password=
+#spring.data.mongodb.repositories.enabled=true
+#spring.data.mongodb.username=
+```
+
+
+
+* 设置打印日志
+
+  ```
+   <logger name="org.springframework.data.mongodb.core.MongoTemplate" level="debug"/>
+  ```
+
+
+
+#### 3, 代码
+
+```java
+import com.leyue.boot.web.pojo.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Component;
+
+import java.sql.Date;
+
+/**
+ * Created by lihao on 17/12/5.
+ */
+
+@Component
+public class MongodbComponent {
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+
+    public void insert(User user) {
+        mongoTemplate.insert(user);
+
+    }
+
+    public void updateById(User user){
+        Criteria criteria =  Criteria.where("id").in(user.getId());
+        Query query = new Query(criteria);
+
+
+        Update update = new Update();
+        update.set("username",user.getUsername());
+        update.set("birthday",new Date(System.currentTimeMillis()));
+        update.set("address",user.getAddress());
+
+        mongoTemplate.updateMulti(query,update,User.class);
+    }
+
+
+    public User selectById(int id){
+        Criteria criteria = Criteria.where("id").in(id);
+        Query query = new Query(criteria);
+        return mongoTemplate.findOne(query,User.class);
+    }
+
+    
+
+    public void deleteById(int id) {
+        Criteria criteria = Criteria.where("id").in(id);
+        Query query = new Query(criteria);
+
+        mongoTemplate.remove(query,User.class);
+    }
+
+
+}
+
+```
+
+
+
+#### 4,测试
+
+```java
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class MongoTest {
+
+    @Autowired
+    private MongodbComponent mongodbComponent;
+
+    @Test
+    public void insert() {
+        User user = new User();
+        user.setId(1);
+        user.setUsername("李浩");
+//        user.setBirthday(new Date(System.currentTimeMillis()));
+        user.setAddress("北京");
+        user.setSex(1);
+
+        mongodbComponent.insert(user);
+    }
+}
+```
+
+
+
+
+
+#### 使用MongoRepository
+
+```java
+import com.leyue.boot.web.pojo.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import java.util.List;
+
+
+public interface UserMongoDao extends MongoRepository<User,Integer> {
+
+    List<User> findByUsername(String s);
+
+    Page<User> findByUsername(String string, Pageable pageable);
+}
+```
+
+
+
+*  测试
+
+  ```java
       @Test
-      public void insert() {
+      public void insert2() {
+          User user = new User();
+          user.setId(2);
+          user.setUsername("李浩2");
+  //        user.setBirthday(new Date(System.currentTimeMillis()));
+          user.setAddress("北京2");
+          user.setSex(2);
+          userMongoDao.save(user);
 
-          Items entity = new Items();
-          entity.setName("mac");
-          entity.setPrice(3000);
-          entity.setPic("http://xxx.png");
-          entity.setDetail("mac 新款");
-          entity.setCreatetime(new Date(System.currentTimeMillis()));
-
-          itemsDao.save(entity);
       }
 
       @Test
-      public void update() {
-          Items entity = new Items();
-          entity.setId(4);
-          entity.setName("联想B460");
-          entity.setCreatetime(new Date(System.currentTimeMillis()));
-          itemsDao.save(entity);
-
-          System.out.println(entity);
-
-      }
-
-
-      @Test
-      public void delete() {
-          itemsDao.delete(4);
-      }
-
-
-      @Test
-      public void select() {
-          Items entity = itemsDao.findOne(1);
-          System.out.println(entity);
+      public void find() {
+          List<User> results = userMongoDao.findByUsername("李浩");
+          System.out.println(results);
       }
 
       @Test
-      public void select1() {
-          List<Items> entity = itemsDao.findByName("背包");
-          System.out.println(entity);
-      }
-
-
-      @Test
-      //分页
       public void queryForPage() {
           Pageable pageable = new PageRequest(0,2,new Sort(new Sort.Order(Sort.Direction.DESC,"id")));
-          List<Items> reult = itemsDao.findByName("笔记本", pageable);
-          System.out.println(reult);
+
+          Page<User> result =  userMongoDao.findAll(pageable);
+
+          System.out.println("--------------------------");
+          System.out.println(result.getTotalPages());
+          System.out.println(result.getContent());
+    }      
+  ```
+
+
+
+
+
+
+## chcache 缓存
+
+
+
+#### 1，添加依赖
+
+
+  ```xml
+
+   <!-- caching -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+        </dependency>
+  ```
+
+
+
+#### 2,配置文件
+
+```
+# cache
+spring.cache.type=ehcache
+spring.cache.ehcache.config=classpath:cache/ehcache.xml
+```
+
+* ehcache.xml
+
+  ```xml
+  <ehcache >
+
+      <cache name="leyue"
+             eternal="false"
+             maxEntriesLocalHeap="0"
+             timeToIdleSeconds="50"></cache>
+
+      <!-- eternal:true表示对象永不过期,此时会忽略timeToIdleSeconds和 timeToLiveSeconds属性,默认为false -->
+
+      <!-- maxEntriesLocalHeap:堆内存中最大缓存对象数,0没有限制 -->
+      
+      <!-- timeToIdleSeconds: 设定允许对象处于空闲状态的最长时间,以秒为 单位。
+      当对象自从最近一次被访问后,如果处于空闲状态的时间超过了 timeToIdleSeconds属性值,这个对象就会过期,EHCache将把它从缓存中清空。
+       只有当eternal属性为false,该属性才有效。如果该属性值为0,则表示对象可以 无限期地处于空闲状态 -->
+  </ehcache>
+  ```
+
+  ​
+
+  #### 3,启用注解
+
+  ```java
+  @EnableCaching:启用缓存注解
+  --------------------------------------
+  @EnableCaching
+  @ServletComponentScan
+  @SpringBootApplication
+  @Configuration
+  @ComponentScan(basePackages = "com.leyue.boot.web")
+  @MapperScan(basePackages = "com.leyue.boot.web.mapper",annotationClass = Mapper.class)
+  public class WebApplication {}
+  ```
+
+
+
+
+####  4,代码实现
+
+
+
+* 接口 UserCache.java
+
+  ```java
+
+  public interface UserCache {
+
+      User selectById(int id);
+
+      String deleteById(int id);
+
+      User updateById(User user);
+
+  }
+  ```
+
+* UserCacheImpl.java 实现类
+
+  ​
+
+
+    @CacheConfig(cacheNames = "leyue")
+    @Repository
+    public class UserCacheImpl implements UserCache {
+    
+        private final Logger logger = LoggerFactory.getLogger(UserCacheImpl.class);
+    
+        @Autowired
+        UserService userService;
+    
+    @Cacheable(key = "#p0")
+      @Override
+      public User selectById(int id) {
+          logger.info("查询功能，缓存查不到，直接读库，然后再缓存,  id = " + id);
+          return userService.getUserById(id);
       }
+    
+      @CacheEvict(key = "#p0")
+      @Override
+      public String deleteById(int id) {
+          logger.info("删除功能，删除缓存,  id = " + id);
+          return "清空缓存成功";
+      }
+      
+        @Override
+      public User updateById(User user) {
+          logger.info("更新功能，然后再缓存,  id = " + user.getId());
+          userService.update(user);
+    
+          return user;
+    
+      }
+        }
+
+#### 5,测试
+
+  ```java
+
+@RestController
+@RequestMapping("cache")
+public class CacheController {
+
+    @Autowired
+    private UserCache userCache;
+
+
+    @RequestMapping("get")
+    public User get(@RequestParam(defaultValue = "1")int id) {
+        return userCache.selectById(id);
+    }
+
+    @RequestMapping("update")
+    public User update(@RequestParam(defaultValue = "1")int id) {
+        User user = new User();
+
+        user.setId(id);
+        user.setUsername("huahua");
+        user.setSex(1);
+        user.setAddress("北京");
+
+        userCache.updateById(user);
+
+        return user;
+
+    }
+
+
+
+}
+  ```
+
+
+
+#### 6，注意事项
+
+```
+ @Cacheable:  
+ 		1,先从缓存中查询，如果没有则查询数据库，然后再进行缓存。
+ 		2,应用到读取数据的方法上,即可缓存的方法,如查找方法:先从缓存中读取,如果没有再调 用方法获取数据,然后把数据添加到缓存中。适用于查找。
+ 		
+ @CacheEvict:   
+ 	1,清空缓存。
+ 	2,主要针对方法配置,能够根据一定的条件对缓存进行清空。适用于删除。
+ 
+ @CachePut:   
+ 	1,更新的时候刷新缓存。
+ 	2,主要针对方法配置,能够根据方法的请求参数对其结果进行缓存,和 @Cacheable 不同的
+是,它每次都会触发真实方法的调用。适用于更新和插入。
+
+@CacheConfig:缓存配置
+
+
+
+```
+
+
+
+
+
+## 调用http 网络请求
+
+#### 1，添加依赖
+
+```
+<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+</dependency>
+
+```
+
+
+
+#### 2，代码实现
+
+```java
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class HttpResetTest {
+
+    @Autowired
+    private RestTemplateBuilder restTemplateBuilder;
+
+
+    @Test
+    public void getForObject() {
+
+        String json = restTemplateBuilder.build().getForObject("http://211.167.232.2:8402/api/search/hospital?limit=2", String.class);
+
+        System.out.println(json);
+        System.out.print(restTemplateBuilder);
+
+
+    }
+
+
+    @Test
+    public void head() {
+        String url = "http://211.167.232.2:8402/api/setting/update";
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("channel", "baJfgkRJWgk");
+        headers.add("package", "cn.leyue.ln12320");
+        headers.add("appver", "2.30");
+        headers.add("os", "android");
+
+//        ResponseEntity<String> result = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<String>(headers), String.class);
+
+
+        ResponseEntity<String> result = restTemplateBuilder.build().exchange(url, HttpMethod.GET, new HttpEntity<String>(headers), String.class);
+
+
+        System.out.println(result.getBody());
+
+
+    }
+
+
+    @Test
+    public void postAndProxy() {
+        String url = "http://211.167.232.2:8402/api/search/hospital?limit=2";
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("channel", "baJfgkRJWgk");
+        headers.add("package", "cn.leyue.ln12320");
+        headers.add("appver", "2.30");
+        headers.add("os", "android");
+
+//        String result = restTemplateBuilder.build()
+//                .postForObject(url,null, String.class);
+        String result = restTemplateBuilder.additionalCustomizers(new ProxyCustomizer()).build()
+                .postForObject(url, null, String.class);
+
+        System.out.println("--------------------------------------------");
+        System.out.println(result);
+    }
+
+
+    static class ProxyCustomizer implements RestTemplateCustomizer {
+        @Override
+        public void customize(RestTemplate restTemplate) {
+            String proxyHost = "58.32.234.26";
+            int proxyPort = 80;
+
+            HttpHost proxy = new HttpHost(proxyHost, proxyPort);
+
+            HttpClient httpClient = HttpClientBuilder.create().setRoutePlanner(new DefaultProxyRoutePlanner(proxy) {
+                @Override
+                public HttpHost determineProxy(HttpHost target, HttpRequest request, HttpContext context)
+                        throws HttpException {
+                    System.out.println(target.getHostName());
+                    return super.determineProxy(target, request, context);
+                }
+            }).build();
+            HttpComponentsClientHttpRequestFactory httpComponentsClientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory(
+                    httpClient);
+            httpComponentsClientHttpRequestFactory.setConnectTimeout(10000);
+            httpComponentsClientHttpRequestFactory.setReadTimeout(60000);
+
+            restTemplate.setRequestFactory(httpComponentsClientHttpRequestFactory);
+        }
+    }
+
+
+}
+```
+
+
+
+**在线代理：**
+
+http://ip.zdaye.com/
+
+
+
+## 发送邮件
+
+#### 1，添加依赖
+
+```xml
+<!-- mail -->
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-mail</artifactId>
+</dependency>
+
+```
+
+
+
+#### 2,配置
+
+```
+# mail
+spring.mail.host: smtp.exmail.qq.com
+spring.mail.username:fengyw@roncoo.com,service@roncoo.com,education@roncoo.com
+spring.mail.password:
+spring.mail.properties.mail.smtp.auth: true
+
+```
+
+
+
+#### 3,代码实现
+
+* LyJavaMailSenderImpl.java
+
+  ```java
+  @Configuration
+  @EnableConfigurationProperties(MailProperties.class)
+  public class LyJavaMailSenderImpl extends JavaMailSenderImpl implements JavaMailSender {
+
+      private ArrayList<String> usernameList;
+      private ArrayList<String> passwordList;
+      private int currentMailId = 0;
+
+      private final MailProperties properties;
+
+
+      public LyJavaMailSenderImpl(MailProperties properties) {
+          this.properties = properties;
+
+          // 初始化账号
+          if (usernameList == null) {
+              usernameList = new ArrayList<>();
+          }
+
+          String[] userNames = this.properties.getUsername().split(",");
+          if (userNames != null) {
+              for (String user : userNames) {
+                  usernameList.add(user);
+              }
+          }
+
+
+          // 初始化密码
+          if (passwordList == null) {
+              passwordList = new ArrayList<String>();
+          }
+
+          String[] passwords = this.properties.getPassword().split(",");
+          if (passwords != null) {
+              for (String pw : passwords) {
+                  passwordList.add(pw);
+              }
+          }
+
+
+      }
+
+
+
+      @Override
+      protected void doSend(MimeMessage[] mimeMessages, Object[] originalMessages) throws MailException {
+
+          super.setUsername(usernameList.get(currentMailId));
+          super.setPassword(passwordList.get(currentMailId));
+
+
+          // 设置编码和各种参数
+          super.setHost(this.properties.getHost());
+          super.setDefaultEncoding(this.properties.getDefaultEncoding().name());
+          super.setJavaMailProperties(asProperties(this.properties.getProperties()));
+          super.doSend(mimeMessages, originalMessages);
+
+
+          // 轮询
+          currentMailId = (currentMailId + 1) % usernameList.size();
+
+
+
+      }
+
+      private Properties asProperties(Map<String, String> source) {
+          Properties properties = new Properties();
+          properties.putAll(source);
+          return properties;
+      }
+
+
+      @Override
+      public String getUsername() {
+          return usernameList.get(currentMailId);
+      }
+
   }
 
   ```
 
   ​
+
+* LyJavaMailComponent.java
+
+  ```java
+  @Component
+  public class LyJavaMailComponent {
+
+      private static final String template = "mail/roncoo.ftl";
+
+      @Autowired
+      private FreeMarkerConfigurer freeMarkerConfigurer;
+
+      @Autowired
+      private LyJavaMailSenderImpl javaMailSender;
+
+
+      public void sendMail(String email) {
+          Map<String, Object> map = new HashMap<String, Object>();
+          map.put("email", email);
+          map.put("name", "小耗子");
+
+          String text = null;
+          try {
+              text = getTextByTemplate(template,map);
+              send(email,text);
+          } catch (IOException e) {
+              e.printStackTrace();
+          } catch (TemplateException e) {
+              e.printStackTrace();
+          } catch (MessagingException e) {
+              e.printStackTrace();
+          }
+
+
+      }
+
+
+      private String getTextByTemplate(String template,Map<String,Object> model) throws IOException, TemplateException {
+
+          return FreeMarkerTemplateUtils.processTemplateIntoString(
+                  freeMarkerConfigurer.getConfiguration().getTemplate(template),model
+          );
+
+      }
+
+
+      private String send(String email,String text) throws MessagingException, UnsupportedEncodingException {
+          MimeMessage message = javaMailSender.createMimeMessage();
+          MimeMessageHelper helper = new MimeMessageHelper(message,true,"utf-8");
+
+          InternetAddress from = new InternetAddress();
+          from.setAddress(javaMailSender.getUsername());
+          from.setPersonal("小耗子","utf-8");
+
+          helper.setFrom(from);
+          helper.setTo(email);
+          helper.setSubject("测试邮件");
+          helper.setText(text,true);
+          javaMailSender.send(message);
+
+          return text;
+
+
+      }
+
+
+  }
+  ```
+
+  ​
+
+* ftl
+
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  </head>
+  <body>
+  	<div style="width: 600px; text-align: left; margin: 0 auto;">
+  		<h1 style="color: #005da7;">龙果学院</h1>
+  		<div style="border-bottom: 5px solid #005da7; height: 2px; width: 100%;"></div>
+  		<div style="border: 1px solid #005da7; font-size: 16px; line-height: 50px; padding: 20px;">
+  			<div>${email}，您好！----->${name}</div>
+  			<div>
+  				这是个测试
+  			</div>
+  			
+  			<div style="border-bottom: 2px solid #005da7; height: 2px; width: 100%;"></div>
+  			<div>扫一扫，关注龙果学院微信公共号，里面更多精彩推荐</div>
+  			<div>
+  				<img src="http://account.roncoo.com/images/qrcode.png" alt="龙果学院公众号二维码" />
+  			</div>
+  			<div>
+  				想了解更多信息，请访问 <a href="http://www.roncoo.com">http://www.roncoo.com</a>
+  			</div>
+  		</div>
+  	</div>
+  </body>
+  </html>
+
+  ```
+
+  ​
+
+* controller
+
+  ```java
+    @Autowired
+      LyJavaMailComponent lyJavaMailComponent;
+
+
+      @RequestMapping("sendMail")
+      public String sendMail(String email) {
+          lyJavaMailComponent.sendMail(email);
+
+          return "sucdess";
+      }
+  ```
+
+  ​
+
+
+
+#### Spring Session实现集群-redis
+
+
+
+#### session集群的解决方案：
+
+```
+
+1.扩展指定server
+利用Servlet容器提供的插件功能，自定义HttpSession的创建和管理策略，并通过配置的方式替换掉默认的策略。缺点：耦合Tomcat/Jetty等Servlet容器，不能随意更换容器。
+
+2.利用Filter
+利用HttpServletRequestWrapper，实现自己的 getSession()方法，接管创建和管理Session数据的工作。spring-session就是通过这样的思路实现的。
+
+Spring Boot中spring session支持方式：
+JDBC、MongoDB、Redis、Hazelcast、HashMap
+
+```
+
+
+
+#### 1，添加依赖
+
+```xml
+<!-- spring session -->
+		<dependency>
+			<groupId>org.springframework.session</groupId>
+			<artifactId>spring-session</artifactId>
+			</dependency>
+<!-- redis -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-redis</artifactId>
+		</dependency>					
+
+```
+
+
+
+#### 2，配置
+
+```
+# spring session使用存储类型
+#spring.session.store-type=redis
+# spring session刷新模式：默认on-save
+#spring.session.redis.flush-mode=on-save
+#spring.session.redis.namespace= 
+# session超时时间，单位秒
+#server.session.timeout=30
+
+#redis
+#spring.redis.host=localhost
+#spring.redis.port=6379
+#spring.redis.password=123456
+#spring.redis.database=0
+#spring.redis.pool.max-active=8 
+#spring.redis.pool.max-idle=8 
+#spring.redis.pool.max-wait=-1 
+#spring.redis.pool.min-idle=0 
+#spring.redis.timeout=0
+
+```
+
+
+
+#### 3，测试
+
+```
+ @RequestMapping("session")
+    public String session(HttpSession httpSession) {
+
+        return httpSession.getId();
+    }
+```
+
+
+
+## 远程调试
+
+#### 远程调试的概念
+
+```
+什么是远程调试：本地调用非本地的环境进行调试。
+原理：两个VM之间通过socket协议进行通信，然后以达到远程调试的目的。
+
+注意，如果 Java 源代码与目标应用程序不匹配，调试特性将不能正常工作。
+```
+
+
+
+#### java 启动命令
+
+```
+-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8000,suspend=n
+比如：java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8000,suspend=n –jar  spring-boot-demo-24-1-0.0.1-SNAPSHOT.jar
+
+```
+
+
 
 
 
