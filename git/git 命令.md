@@ -1,0 +1,296 @@
+## 第一讲
+
+#### git config
+
+* git config，专门用来对你的git环境进行各种配置。
+
+  ```
+  （1）/etc/gitconfig，对当前机器上所有的用户和git项目都生效，使用git config --system，即可对这个配置文件进行操作，也不是很重要，因为我们一般很少去配置这个文件，因为git的配置一般都是对某个用户和项目的范围去生效的
+   
+  （2）~/.gitconfig，当前用户主目录的.gitconfig文件，对当前用户有效，使用git config --global，即可对这个配置文件进行操作，windows的话，是在这里：/c/Documents and Settings/All Users/Application Data/Git
+   
+  （3）项目的.git目录下的config文件，仅仅对当前git管理的这个项目有效，直接git config操作的就是这个文件
+  ```
+
+  ​
+
+```
+git config --global user.name "lihao"
+git config --global user.email "lihao@163.com"
+```
+
+
+
+* git config --global 设置当前用户范围内的配置，对机器上的其他用户是无效的
+* git config --system，就是对当前机器上所有用户都生效
+* git config  —local，就是对当前所在的git项目本身生效
+* git config --list , 查看所有的配置项
+* git config user.name，查看某个配置项
+
+
+
+
+
+
+
+
+
+## 第五讲
+
+#### git 本地仓库结构
+
+```
+git 项目有3个主要组成：
+	1，工作区(working directory / working tree)
+	2，暂存区(staging area)
+	3，版本库(git directory / repository)
+```
+
+![git本地仓库](../images/git本地仓库.png)
+
+
+
+* git directory / repository：git版本库，其实就是git用于存储自己的元数据，以及文档数据库的地方，默认就是在项目的.git隐藏目录中。
+* working directory / working tree：工作区，保存的是一个项目当前的一个版本对应的所有文件，这些文件是从git版本仓库中的压缩后的数据库中提取出来，然后放到我们的磁盘上去。
+* staging area：暂存区，就是一个文件，包含在git版本库中，主要是保存了下一次要提交到的那些文件信息。在git中，对暂存区有另外一个名称，叫做index,也就是索引。
+
+
+
+如果这个文件修改了，还没有加入暂存区，那么就是modified状态。
+
+如果这个被修改了，同时被加入了暂存区，那么就是staged状态；
+
+如果一个文件，已经有一个版本被保存到了版本库，那么就是committed状态；
+
+
+
+
+
+## 第六讲
+
+```
+代码文件分成两种，一种是tracked,一种是untracked.tracked文件就是已经提交到gitb版本库中的文件，后面可以出去modified或者staged状态；untracked文件，就是从来没有提交到git版本库中的代码文件(也从来没有放入暂存区)
+```
+
+
+
+
+
+#### git add —all  .  和 git add . 区别
+
+```
+git add . 就是将当前新增或者是修改过的文件，加入暂存区。
+
+git add --all . 如果文件被删除，也会将文件删除的状态加入暂存区中。
+```
+
+
+
+#### 执行流程
+
+* 1，新建文件刚创建；untracked,此时仅仅停留在工作区中。
+* 2，git add 新文件： new file，此时已经被追踪了，放入暂存区中。
+* 3，git commit 新文件：committed  已经被追踪了，放入git 仓库中。
+* 4，修改那个文件： modified,changes not staged to be committed 没有加入暂存区，被修改的内容仅仅停留在工作区中。
+* 5，git add 修改文件： modified，changes to be committed,修改的文件版本已经加入暂存区
+* 6，git commit 修改文件： commited,修改后的新版本提交到git仓库中。
+
+
+
+#### git 管理文件状态
+
+```
+提交状态(committed)
+
+修改状态(modified)
+
+暂存状态(staged)
+```
+
+
+
+* 暂存状态： 将修改后的文件标记为即将通过下一次提交，保存到git数据库中去。
+* 修改状态：我们修改了文件，但是还没有提交到git数据库中去.
+* 提交状态：我们的文件已经安全的保存在git 本地数据库中了。
+
+
+
+
+
+## 第七讲
+
+#### git log 查看提交历史
+
+```
+git log --patch -2
+```
+
+—path 可以显示每次提交之间的diff,同时-n 可以指定显示最近几个commit.这个很有用，可以看最近两次commit之间的代码差异，进行code review 是比较方便的。
+
+![git本地仓库](../images/git-log-patch.png)
+
+
+
+```
+git log --stat
+```
+
+可以显示每次commit的统计信息，包括修改了几个文件，有多少行插入，多少行删除。
+
+
+
+![git-stat](../images/git-log-stat.png)
+
+
+
+```
+git log --pretty=format:"%h - %an, %ar : %s"
+```
+
+可以显示短hash,作者，多长时间以前，提交说明
+
+![git-stat](../images/git-log-format.png)
+
+
+
+
+
+```
+git log --oneline --abbrev-commit --graph
+```
+
+这是最有用的，可以看到整个commit树结构，包括如何合并的，就显示每个commit的SHA-1和提交说明，同时SHA-1显示短值。
+
+—oneline : 显示一行，不要显示多行那么多东西，一行里，就显示commit的标识符，SHA-1 hash值，40位的；提交备注；显示分支和HEAD指向哪个commit。
+
+
+
+—abbrev-commit: commit的标识符，每一次commit，都有一个唯一的标识符，就是一个SHA-1 hash值，40位，显示一个短值，默认显示前7位，就是说前7位就可以唯一定位这个commit了，不需要完整的40位。
+
+
+
+—graph: 显示图形化的commit历史，如果有分支的话，commit历史会形成一棵树的形状，这个时候用--graph可以看清楚这颗commit树长什么样子，很有的.
+
+
+
+![git-stat](../images/git-log-graph.png)
+
+
+
+
+
+
+
+## 第八讲
+
+#### 版本回退
+
+```
+git reset -- hard HEAD^  //回退到上一个版本
+git reset -- hard HEAD^^ //回退到上两个版本
+git reset -- hard HEAD~2 //回退到指定第几个版本
+git reset -- hard commit_id //回退到指定的版本
+```
+
+
+
+git reset -- hard HEAD^ 就是将仓库，暂存区，工作区，全部恢复到一个commit对应的状态
+
+
+
+#### 查看远程日志
+
+```
+git reflog
+```
+
+可以根据 git reset —hart commit_id 回退到任意提交的版本.
+
+
+
+
+
+
+
+
+
+## 第十讲
+
+#### 安装git
+
+```
+git --version
+yum install -y git
+
+```
+
+
+
+
+
+#### 创建git 用户
+
+```
+groupadd git
+adduser git -g git
+```
+
+
+
+
+
+#### 添加key
+
+```
+把公钥导入到git服务器上的/home/git/.ssh/authorized_keys文件里，一行一个。
+```
+
+
+
+
+
+#### 初始化仓库
+
+```
+使用/srv/oa-parent.git目录作为远程仓库，在/srv目录下输入命令：
+
+git init --bare oa-parent.git
+
+```
+
+Git会创建一个裸仓库，裸仓库没有工作区。因为服务器上的Git仓库就是为了共享，不会让用户直接登录到服务器上去修改工作区的，而且服务器上的Git仓库通常都以.git结尾。然后，把owner改为git：
+
+```
+chown -R git:git oa-parent.git
+```
+
+
+
+
+
+#### 禁用shell 登录
+
+一般出于安全考虑，第二步创建的git用户是不允许使用shell的，我们可以编辑/etc/passwd文件。
+
+```
+找到类似下面的一行：
+git:x:1001:1001:,,,:/home/git:/bin/bash
+
+改为：
+git:x:1001:1001:,,,:/home/git:/usr/bin/git-shell
+```
+
+这样，git用户可以正常通过ssh使用git推送和下载代码，但是无法通过shell登录的，因为我们为git用户指定的git-shell是每次一登录就自动退出。
+
+
+
+#### 下载上传代码
+
+```
+git remote add origin ssh://git@192.168.31.244:/srv/oa-parent.git
+
+将本地仓库和git服务器上的远程仓库关联起来
+
+git push -u origin master
+```
+

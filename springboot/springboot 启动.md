@@ -1128,6 +1128,7 @@ public class CustomCorsConfiguration2 extends WebMvcConfigurerAdapter {
       文件:<input type="file" name="files"/>
       <input type="submit" value="上传"/>
       </form>
+  ```
 
 
 
@@ -1372,6 +1373,8 @@ public class Items {
 
   ```java
 
+  ```
+
 public interface ItemsDao extends JpaRepository<Items,Integer> {
 
     List<Items> findByName(String s);
@@ -1387,7 +1390,7 @@ public interface ItemsDao extends JpaRepository<Items,Integer> {
   ​
 
 
-```java
+​```java
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class ItemsDaoTest {
@@ -1444,7 +1447,7 @@ public class ItemsDaoTest {
   }
   
    }
-```
+  ```
 
  
 
@@ -2140,16 +2143,17 @@ spring.mail.properties.mail.smtp.auth: true
       private int currentMailId = 0;
 
       private final MailProperties properties;
+  ```
 
 
       public LyJavaMailSenderImpl(MailProperties properties) {
           this.properties = properties;
-
+    
           // 初始化账号
           if (usernameList == null) {
               usernameList = new ArrayList<>();
           }
-
+    
           String[] userNames = this.properties.getUsername().split(",");
           if (userNames != null) {
               for (String user : userNames) {
@@ -2162,7 +2166,7 @@ spring.mail.properties.mail.smtp.auth: true
           if (passwordList == null) {
               passwordList = new ArrayList<String>();
           }
-
+    
           String[] passwords = this.properties.getPassword().split(",");
           if (passwords != null) {
               for (String pw : passwords) {
@@ -2177,7 +2181,7 @@ spring.mail.properties.mail.smtp.auth: true
 
       @Override
       protected void doSend(MimeMessage[] mimeMessages, Object[] originalMessages) throws MailException {
-
+    
           super.setUsername(usernameList.get(currentMailId));
           super.setPassword(passwordList.get(currentMailId));
 
@@ -2324,17 +2328,18 @@ spring.mail.properties.mail.smtp.auth: true
   ```java
     @Autowired
       LyJavaMailComponent lyJavaMailComponent;
+  ```
 
 
       @RequestMapping("sendMail")
       public String sendMail(String email) {
           lyJavaMailComponent.sendMail(email);
-
+    
           return "sucdess";
       }
   ```
 
-  ​
+  
 
 
 
@@ -2343,8 +2348,7 @@ spring.mail.properties.mail.smtp.auth: true
 
 
 #### session集群的解决方案：
-
-```
+  ```
 
 1.扩展指定server
 利用Servlet容器提供的插件功能，自定义HttpSession的创建和管理策略，并通过配置的方式替换掉默认的策略。缺点：耦合Tomcat/Jetty等Servlet容器，不能随意更换容器。
@@ -2361,7 +2365,7 @@ JDBC、MongoDB、Redis、Hazelcast、HashMap
 
 #### 1，添加依赖
 
-```xml
+​```xml
 <!-- spring session -->
 		<dependency>
 			<groupId>org.springframework.session</groupId>
@@ -2372,7 +2376,6 @@ JDBC、MongoDB、Redis、Hazelcast、HashMap
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-redis</artifactId>
 		</dependency>					
-
 ```
 
 
