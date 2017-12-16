@@ -57,6 +57,8 @@
 
   ```
    mvn spring-boot:run
+   
+   java -jar app.jar --name="Spring" --server.port=9090
   ```
 
   ​

@@ -471,7 +471,7 @@ com.maven:maven1:jar:1.0-SNAPSHOT
 
 http://nexus.sonatype.org/downloads/
 
-
+https://help.sonatype.com/display/NXRM3/Download
 
 nexus-3.6.1-02 : 这里包含nexus 运行需要的文件
 
