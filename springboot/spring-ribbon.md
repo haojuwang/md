@@ -126,3 +126,59 @@ public class ConsumerApplication {
 
 ```
 
+
+
+
+
+controller
+
+```Java
+@RestController
+@RequestMapping("consumer")
+public class ConsumerController {
+
+    @Autowired
+    RestTemplate restTemplate;
+
+
+    private Logger logger = LoggerFactory.getLogger(ConsumerController.class);
+
+    @Autowired
+    private LoadBalancerClient loadBalancerClient;
+
+
+    @RequestMapping("user")
+    public String user(String name) {
+       return restTemplate.getForObject("http://xiaohaozi:123@spuer-user/user/find?name="+name,String.class);
+    }
+
+
+    @GetMapping("balacner")
+    public Map<String,String> balacner() {
+        ServiceInstance service = this.loadBalancerClient.choose("spuer-user");
+
+        logger.error(service.getHost());
+        logger.error(service.getUri().toString());
+        logger.error(String.valueOf(service.getPort()));
+
+        return service.getMetadata();
+    }
+
+//    @Autowired
+//    private EurekaClient discoveryClient;
+//
+//
+//    @RequestMapping("serviceUrl")
+//    public String serviceUrl() {
+//        InstanceInfo instance = discoveryClient.getNextServerFromEureka("SPUER-USER", false);
+//
+//        return instance.getHomePageUrl();
+//    }
+
+
+
+
+```
+
+
+
