@@ -93,7 +93,6 @@
 
       }
   }
-
   ```
 
 * 3,定义Service 接口，通过@FeignClent 注解指定服务器名来绑定，然后在使用Spring mvc 注解来绑定具体该服务提供的REST接口
@@ -120,6 +119,7 @@
   @RestController
   @RequestMapping("consumer")
   public class ConsumerController {
+  ```
 
 
       private Logger logger = LoggerFactory.getLogger(ConsumerController.class);
@@ -157,7 +157,7 @@
   eureka.client.service-url.defaultZone= http://xiaohaozi:123@192.168.0.106:8761/eureka/
   ```
 
-  ​
+  
 
 
 
@@ -175,3 +175,4 @@
 
 
 
+  ```
