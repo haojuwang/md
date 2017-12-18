@@ -381,6 +381,12 @@ git push  -u origin 分支名称
 
 
 
+
+
+
+
+
+
 ##### 基于远程分支创建分支
 
 ```
@@ -399,13 +405,100 @@ git checkout -b 本地分支  origin/远程分支
 
 
 
+## 第二十三讲 对本地不规范的提交历史进行修改和调整
+
+
+
+#### 修改上一次commit的备注
+
+```
+git commit --amend
+```
+
+
+
+![git commit --amend](../images/git-commit-m.png)
 
 
 
 
 
+#### 对上一次commit 加入几行遗漏的代码
+
+修改代码后，先放入暂存区
+
+```
+git  add .
+git commit --amend
+```
 
 
 
 
+
+#### 对历史上的多个commit 进行备注修改
+
+```
+git rebase -i HEAD~3  
+```
+
+
+
+![git rebase -i HEAD~3  ](../images/git-commit-pick.png)
+
+
+
+把 pick 修改成edit,然后
+
+```
+git commit --amend
+```
+
+修改备注
+
+```
+git rebase --continue
+```
+
+
+
+
+
+#### 删除commit
+
+```
+git rebase -i HEAD~3
+```
+
+把pick 那一行删除即可
+
+
+
+#### 多个commit 合成一个commit
+
+
+
+![git rebase -i HEAD~3  ](../images/git-commit-hebing.png)
+
+
+
+把pick 修改成squash 然后
+
+```
+git rebase --continue
+```
+
+![git rebase -i HEAD~3  ](../images/git-commit-hebinghou.png)
+
+
+
+#### 将一个commit切分为多个commit
+
+先把pick 修改成edit，然后执行
+
+```
+git reset -- hard HEAD^  //回退到上一个版本
+```
+
+再提交
 
