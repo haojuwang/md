@@ -119,60 +119,36 @@
   @RestController
   @RequestMapping("consumer")
   public class ConsumerController {
-  ```
-
-
       private Logger logger = LoggerFactory.getLogger(ConsumerController.class);
-
       @Autowired
-      private UserService userService;
-
-
-      @RequestMapping("user")
-      public String user(String name) {
-         return userService.getUser(name);
-      }
-
-
+    private UserService userService;
+    @RequestMapping("user")
+    public String user(String name) {
+       return userService.getUser(name);
+    }
+    
   }
-
   ```
 
 
 
 
-
-* 5，application 配置
+* 5，application 配置  
 
   ```
+
 
   server.port=8002
 
-
   logging.level.com.leyue.consumer= debug
-
 
   spring.application.name=user-feign
 
   eureka.client.service-url.defaultZone= http://xiaohaozi:123@192.168.0.106:8761/eureka/
-  ```
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 
   ```
+
+

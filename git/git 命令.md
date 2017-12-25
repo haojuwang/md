@@ -502,3 +502,85 @@ git reset -- hard HEAD^  //回退到上一个版本
 
 再提交
 
+
+
+
+
+
+
+## 第二十四将 对本地刚做出的修改，暂存和提交进行撤回
+
+#### reset 撤回已经commit 的文件
+
+```
+git reset --soft HEAD^   撤回上次一次提交的代码
+
+git reset --soft commit_id  撤回到指定的commit_id
+```
+
+* 在仓库中，将master 分支指向上一个commit
+* 暂存区和工作去是没有变化的
+
+
+
+
+
+#### 撤回暂存区的文件
+
+```
+git reset HEAD <file>
+```
+
+把加入到暂存区的文件撤回,工作去内容不会改变
+
+
+
+#### 撤回工作区,暂存区,版本库中提交的文件
+
+```
+git reset --hard HEAD^
+```
+
+
+
+
+
+## 第二十五讲 远程和本地同事撤回合并操作
+
+（1）如果是要撤回已经push到远程仓库的merge操作
+
+ 
+
+（2）在本地执行gitrevert -m 1 HEAD，再执行git push origin master，此时本地和远程的提交历史都会多一个commit出来，该commit的内容和合并之前的master指向的那个commit是一样的，同时master此时指向最新的那个commit
+
+ 
+
+（3）但是后面，如果要再次将release分支和master分支进行合并，此时是需要特殊处理的，再次在本地执行：git revertHEAD，git push origin master。就是再次将master还原到指向一个新的commit，该commit的内容与上一次merge后的那个commit一样，包含merge的内容
+
+ 
+
+（4）最后再次将release分支与master分支进行合并，此时可以保证release分支所有的内容，都是合并到master分支的
+
+
+
+
+
+
+
+如果在本地做了commit，同时还推送到了远程仓库，此时要撤回
+
+比撤回merge简单多了，直接git
+revert HEAD，不就回到了上一个commit的状态，然后再次git push origin master，完美同步撤回远程仓库的commit操作了
+
+
+
+
+
+
+
+
+
+
+
+
+

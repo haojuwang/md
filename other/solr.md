@@ -6,6 +6,10 @@
 
 ```
 ./solr create -c tests
+
+su solr -c "/opt/solr/bin/solr create -c hospital"
+
+su solr -c "/opt/solr/bin/solr restart"
 ```
 
 #### 查询core
