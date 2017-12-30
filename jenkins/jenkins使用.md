@@ -145,7 +145,7 @@ java -jar jenkins.war --httpPort=7070 &
 
 http还需要设置一下账号
 
-新建一个~/..netrc
+新建一个~/.netrc
 
 ```
 machine 101.220.204.74

@@ -1,3 +1,5 @@
+
+
 ##spring cloud  常见问题
 
 
@@ -46,32 +48,21 @@ eureka.datacenter: cloud
       instance:
           leaseRenewalIntervalInSeconds: 10
           leaseExpirationDurationInSeconds: 30
-
-
   ```
 
-  ​
 
 #### Eureka 配置 instanceId 显示IP
 
-```
+![eureka-ip](../images/eureka-ip.png)
+
 eureka:
   client:
+
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
   instance:
     preferIpAddress: true
     instance-id: ${spring.cloud.client.ipAddress}:${server.port}
-
-```
-
-![eureka-ip](../images/eureka-ip.png)
-
-
-
-
-
-
 
 ### Ribbon
 
@@ -85,7 +76,6 @@ eureka:
 ### Feign
 
 *  自定义配置时，@Configuration和@ComponentScan包不应重叠
-* @FeignClient所在的接口中，不支持@GetMapping等组合注解
-* 使用@PathVariable时，需要指定其value
-* Feign暂不支持复杂对象作为一个参数
-
+*  @FeignClient所在的接口中，不支持@GetMapping等组合注解
+*  使用@PathVariable时，需要指定其value
+*  Feign暂不支持复杂对象作为一个参数
